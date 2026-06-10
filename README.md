@@ -24,8 +24,12 @@ unreachable. Nothing hard-crashes.
 
 ## What the cat does
 
-- **Sees your desktop** — a screenshot of the whole screen plus a distilled scene
-  (windows, cursor, active app, idle time) goes to the LLM each decision.
+- **Sees your desktop** — a whole-screen screenshot **and** a distilled text scene
+  go to the LLM each decision. It genuinely reacts to *what's on screen* (begs at
+  cat food, hunts a bird in a video), recognises **any app by name** from its
+  title (Photoshop, Discord, a game…), reads what you're doing (coding / watching
+  / gaming / away), the time of day, and **what just changed** ("you just switched
+  to Brave").
 - **Moves with intent** — walks to your cursor, chases/pounces the "little arrow",
   perches on a window edge, naps on the taskbar, hides, follows you around.
 - **Talks like a cat** — short, playful, self-centred lines (demands, judgement,
@@ -82,6 +86,21 @@ persistence) is handled by code, not the model.
 That's it — no "remember", no confidence, no coordinates. The model just *is* the
 cat.
 
+### What it's aware of (each decision)
+
+| Input | What it gives the cat |
+|-------|------------------------|
+| **Screenshot** (whole desktop) | Real sight — reacts to food, prey, animals, anything visible. |
+| **Window titles** | Recognises *any* app by name via the LLM's own knowledge (not a fixed list). Off-switch: `[perception].share_titles`. |
+| **Activity** | Coarse read of what you're doing — coding / watching / gaming / browsing / away. |
+| **Time & context** | Time of day, "glued to the same app for an hour", low energy — so it gets clingy late at night, bored in long sessions. |
+| **"Just happened"** | The event that woke it — app switch, clipboard copy, you went idle — so it *reacts* rather than just describes. |
+| **Memories** | Relevant facts + past episodes recalled by current app + recency. |
+| **Its own recent actions** | The last few turns, so it doesn't repeat itself. |
+
+Cheap structured signals (active app, idle, cursor) come from Win32 every few ms;
+the screenshot is captured fresh per decision.
+
 ---
 
 ## Quick start (Windows)
@@ -118,15 +137,16 @@ set GEMINI_API_KEY=...your key...
 python run.py
 ```
 
-### Using a remote Ollama (e.g. a Linux GPU box)
+### Using a remote Ollama (a GPU box on your network)
 
-If Ollama runs on **another machine**, start it there bound to all interfaces:
+If Ollama runs on **another machine**, bind it to all interfaces on that box and
+allow the port through its firewall:
 
 ```bash
-OLLAMA_HOST=0.0.0.0:11434 ollama serve     # and allow port 11434 through the firewall
+OLLAMA_HOST=0.0.0.0:11434 ollama serve
 ```
 
-then on the Windows pet:
+then point the pet at it:
 
 ```bat
 set DESKPET_LLM_PROVIDER=ollama
@@ -135,8 +155,8 @@ set DESKPET_LLM_BASE_URL=http://192.168.1.50:11434   :: <- the box's IP
 python run.py
 ```
 
-If it can't reach the brain, the pet prints a friendly note and runs rule-based
-until the brain is back.
+Only expose Ollama on a network you trust. If the pet can't reach the brain, it
+prints a friendly note and runs rule-based until the brain is back.
 
 ---
 
@@ -203,8 +223,9 @@ State lives in `deskpet.db` (SQLite). The **LLM never decides what to remember**
 code does, so the model stays focused on behaviour. Two stores:
 
 - **`memories`** — two kinds, written automatically:
-  - **Facts** about you — which apps you live in, being petted / poked / thrown,
-    level-ups.
+  - **Facts** about you — which apps you live in, *what* you do (watches a lot of
+    videos, codes a lot), being petted / poked / thrown, level-ups. Deduped so the
+    same fact doesn't pile up across sessions.
   - **Episodes** — the cat's own recollections of notable moments (what it saw +
     did + felt, e.g. *"those kibble pictures on screen are torture; I must be
     fed"*), captured on emotional turns and throttled so they don't flood.
@@ -253,7 +274,9 @@ See `config.example.toml` for every option. Highlights:
 - `[vision]` — `enabled`, `mode` (`monitor` = whole desktop, the default; or
   `active_window`), `max_edge` (downscale for token cost).
 - `[llm]` — provider / model / base_url / api_key / temperature.
-- `[memory]`, `[triggers]`, `[perception]`, `[persona]`, `[render]`.
+- `[perception].share_titles` — send raw window titles to the LLM (default on; see
+  Privacy).
+- `[memory]`, `[triggers]`, `[persona]`, `[render]`.
 
 Key env overrides (env always wins):
 

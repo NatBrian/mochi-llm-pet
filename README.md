@@ -213,10 +213,6 @@ The placeholder cat is intentionally simple. To use the real pack:
    (Swap `Cat_Ginger` → `Cat_Grey` / `Cat_Grey_White` for a different colour.)
 4. Relaunch — it auto-detects the art and replaces the placeholder.
 
-> The art is licensed for use but **not for redistribution**, so it's gitignored —
-> each user downloads it themselves. Only the generated `anim_manifest.yaml` is
-> tracked.
-
 ---
 
 ## Memory & personality (code-driven, persistent)

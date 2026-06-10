@@ -9,9 +9,11 @@ prompt-enforced backends.
 from __future__ import annotations
 
 from ..types import Emotion, Verb
+from ..sprite.expressions import EMOTE_TOKENS
 
 VERBS: list[str] = [v.value for v in Verb]
 EMOTIONS: list[str] = [e.value for e in Emotion]
+EMOTES: list[str] = sorted(EMOTE_TOKENS)
 
 
 def intent_json_schema() -> dict:
@@ -32,7 +34,12 @@ def intent_json_schema() -> dict:
             },
             "edge": {"type": ["string", "null"], "enum": ["top", "bottom", "left", "right", None]},
             "emotion": {"type": "string", "enum": EMOTIONS},
-            "say": {"type": ["string", "null"], "description": "short speech <=120 chars, or null"},
+            "emote": {
+                "type": ["string", "null"],
+                "enum": EMOTES + [None],
+                "description": "optional expressive animation to play for flavor (see persona menu), or null",
+            },
+            "say": {"type": ["string", "null"], "description": "what the pet says out loud, 1-3 short sentences, <=220 chars, or null"},
             "remember": {"type": ["string", "null"], "description": "fact worth persisting, or null"},
             "duration_hint_s": {"type": ["number", "null"]},
             "confidence": {"type": "number"},
@@ -67,6 +74,7 @@ def gemini_schema() -> dict:
             "target": field("STRING", nullable=True),
             "edge": field("STRING", nullable=True),
             "emotion": field("STRING", enum=EMOTIONS),
+            "emote": field("STRING", nullable=True),
             "say": field("STRING", nullable=True),
             "remember": field("STRING", nullable=True),
             "duration_hint_s": field("NUMBER", nullable=True),
@@ -86,7 +94,8 @@ def summary_for_prompt() -> str:
         '  "target": a name from the NAMES list, or null\n'
         '  "edge": "top"|"bottom"|"left"|"right"|null (only for sit_on)\n'
         f'  "emotion": one of {EMOTIONS}\n'
-        '  "say": short speech <=120 chars, or null\n'
+        f'  "emote": optional expressive animation, one of {EMOTES}, or null\n'
+        '  "say": what the pet says, 1-3 short sentences, <=220 chars, or null\n'
         '  "remember": a fact worth persisting, or null\n'
         '  "duration_hint_s": number or null\n'
         '  "confidence": number 0..1\n'

@@ -114,6 +114,16 @@ def _clean_str(value: Any, limit: int) -> Optional[str]:
     return value[:limit]
 
 
+def _coerce_emote(value: Any) -> Optional[str]:
+    """Keep an emote only if it's a known token (closed vocabulary)."""
+    from ..sprite.expressions import EMOTE_TOKENS
+
+    if not isinstance(value, str):
+        return None
+    tok = value.strip().lower().replace(" ", "_").replace("-", "_")
+    return tok if tok in EMOTE_TOKENS else None
+
+
 def coerce_intent(data: dict) -> Intent:
     """Turn a raw dict into a valid Intent, filling/clamping every field."""
     verb = Verb(_coerce_enum(data.get("verb"), VERBS, "idle"))
@@ -145,7 +155,8 @@ def coerce_intent(data: dict) -> Intent:
         point=_coerce_point(data.get("point")),
         edge=edge,
         emotion=emotion,
-        say=_clean_str(data.get("say"), 120),
+        emote=_coerce_emote(data.get("emote")),
+        say=_clean_str(data.get("say"), 220),
         thought=_clean_str(data.get("thought"), 200) or "",
         remember=_clean_str(data.get("remember"), 200),
         duration_hint_s=dur,

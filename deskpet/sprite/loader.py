@@ -19,9 +19,17 @@ def load_sheet(path: str | Path) -> Any:
 
 def slice_range(sheet: Any, frame_w: int, frame_h: int, columns: int,
                 frm: int, to: int) -> list[Any]:
-    """Return QPixmaps for linear frame indices frm..to inclusive."""
+    """Return QPixmaps for linear cell indices frm..to inclusive."""
+    return slice_cells(sheet, frame_w, frame_h, columns, range(frm, to + 1))
+
+
+def slice_cells(sheet: Any, frame_w: int, frame_h: int, columns: int,
+                cells: Any) -> list[Any]:
+    """Return QPixmaps for an explicit, possibly non-contiguous list of cell
+    indices (cell = row * columns + col). Used for tags whose physical cells are
+    broken up by nested-tag row padding in the exported sheet."""
     out = []
-    for idx in range(frm, to + 1):
+    for idx in cells:
         row, col = divmod(idx, columns)
         out.append(sheet.copy(col * frame_w, row * frame_h, frame_w, frame_h))
     return out

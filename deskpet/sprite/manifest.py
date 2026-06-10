@@ -44,10 +44,18 @@ class AnimSpec:
     fps: float = 10.0
     loop: bool = True
     sheet: Optional[str] = None  # override; defaults to the manifest sheet
+    cells: Optional[list[int]] = None  # explicit cell indices (for non-contiguous tags)
 
     @property
     def count(self) -> int:
+        if self.cells:
+            return max(1, len(self.cells))
         return max(1, self.to - self.frm + 1)
+
+    @property
+    def cell_list(self) -> list[int]:
+        """The physical sheet cells this animation occupies, in play order."""
+        return list(self.cells) if self.cells else list(range(self.frm, self.to + 1))
 
 
 @dataclass
@@ -102,13 +110,16 @@ def load(path: str | Path) -> Optional[Manifest]:
     default_fps = float(data.get("default_fps", 10))
     specs: dict[str, AnimSpec] = {}
     for state, d in (data.get("states") or {}).items():
+        cells = d.get("frames")
+        cells = [int(c) for c in cells] if cells else None
         specs[state] = AnimSpec(
             state=state,
-            frm=int(d.get("from", d.get("frm", 0))),
-            to=int(d.get("to", d.get("from", 0))),
+            frm=int(d.get("from", (cells[0] if cells else 0))),
+            to=int(d.get("to", (cells[-1] if cells else d.get("from", 0)))),
             fps=float(d.get("fps", default_fps)),
             loop=bool(d.get("loop", True)),
             sheet=d.get("sheet"),
+            cells=cells,
         )
     aliases = dict(data.get("aliases") or {})
     return Manifest(frame_w=int(fw), frame_h=int(fh), columns=columns,

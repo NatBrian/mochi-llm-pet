@@ -52,7 +52,7 @@ def build(assets_dir: str | Path, color: str = "#e0a060") -> dict[str, Animation
 
 
 def _from_assets(assets_dir: Path, mani: "manifest_mod.Manifest") -> dict[str, AnimationClip]:
-    from .loader import load_sheet, slice_range
+    from .loader import load_sheet, slice_cells
 
     sheet = load_sheet(_sheet_path(assets_dir, mani))
     if sheet is None:
@@ -60,8 +60,8 @@ def _from_assets(assets_dir: Path, mani: "manifest_mod.Manifest") -> dict[str, A
 
     clips: dict[str, AnimationClip] = {}
     for state, spec in mani.specs.items():
-        frames = slice_range(sheet, mani.frame_w, mani.frame_h, mani.columns,
-                             spec.frm, spec.to)
+        frames = slice_cells(sheet, mani.frame_w, mani.frame_h, mani.columns,
+                             spec.cell_list)
         if frames:
             clips[state] = AnimationClip(state=state, frames=frames,
                                          fps=spec.fps, loop=spec.loop)

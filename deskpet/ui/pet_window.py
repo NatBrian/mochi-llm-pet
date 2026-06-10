@@ -37,8 +37,9 @@ class PetWindow(QWidget):
         self.bubble = SpeechBubble()
 
         self.sprite_px = SPRITE * scale
-        self.canvas_w = max(self.sprite_px + 40, 180)
-        self.canvas_h = self.sprite_px + 80  # headroom for the bubble
+        # wide + tall enough to hold a multi-line, word-wrapped speech bubble
+        self.canvas_w = max(self.sprite_px + 40, 300)
+        self.canvas_h = self.sprite_px + 150  # headroom for the bubble
         # where the sprite sits inside the canvas (logical px)
         self.sprite_x = (self.canvas_w - self.sprite_px) // 2
         self.sprite_y = self.canvas_h - self.sprite_px - 6
@@ -120,8 +121,8 @@ class PetWindow(QWidget):
         frame: QPixmap = self.player.current_frame()
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, False)  # crisp pixels
-        # bubble above
-        self.bubble.paint(p, self.canvas_w)
+        # bubble bottom-anchored just above the sprite
+        self.bubble.paint(p, self.canvas_w, self.sprite_y)
         if frame is not None and not frame.isNull():
             scaled = frame.scaled(
                 self.sprite_px, self.sprite_px,

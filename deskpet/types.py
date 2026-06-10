@@ -124,6 +124,7 @@ class Intent:
     point: Optional[Vec2] = None          # explicit pixel target (overrides target)
     edge: Optional[str] = None            # for sit_on: top|bottom|left|right
     emotion: Emotion = Emotion.NEUTRAL
+    emote: Optional[str] = None           # optional expressive animation token
     say: Optional[str] = None             # short speech-bubble text
     thought: str = ""                     # private reasoning, logged only
     remember: Optional[str] = None        # fact to persist to memory

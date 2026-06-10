@@ -8,13 +8,26 @@ from ..types import Vec2, Verb, WorldSnapshot
 from .motion import RUN_SPEED, WALK_SPEED, seek, spring
 
 NEAR = 26.0  # px considered "at" a perch/target
+EDGE = 24.0  # keep targets (and the pet) this far inside the desktop
+
+
+def _clamp_target(snap: WorldSnapshot, pt: Vec2 | None) -> Vec2 | None:
+    """Pull a target inside the desktop so the pet can actually arrive on it
+    (a point in the edge margin is otherwise unreachable once the pet is clamped)."""
+    if pt is None or not snap.monitors:
+        return pt
+    mons = snap.monitors
+    left = min(m.left for m in mons) + EDGE
+    top = min(m.top for m in mons) + EDGE
+    right = max(m.right for m in mons) - EDGE
+    bottom = max(m.bottom for m in mons) - EDGE
+    return Vec2(min(max(pt.x, left), right), min(max(pt.y, top), bottom))
 
 
 def _target_point(body, snap: WorldSnapshot) -> Vec2 | None:
     intent = body.current_intent
-    if intent.point is not None:
-        return intent.point
-    return snap.resolve(intent.target)
+    pt = intent.point if intent.point is not None else snap.resolve(intent.target)
+    return _clamp_target(snap, pt)
 
 
 def ex_idle(body, dt, snap):
@@ -40,7 +53,7 @@ def ex_follow_cursor(body, dt, snap):
 
 def ex_chase(body, dt, snap):
     tgt = body.current_intent.point or snap.resolve(body.current_intent.target) or snap.cursor
-    seek(body.motion, tgt, dt, RUN_SPEED)
+    seek(body.motion, _clamp_target(snap, tgt), dt, RUN_SPEED)
     return "run"
 
 

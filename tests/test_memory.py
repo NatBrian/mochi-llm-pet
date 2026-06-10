@@ -72,3 +72,48 @@ def test_prune_keeps_salient(tmp_path):
     remaining = s.recent(50)
     assert len(remaining) == 3
     assert any("important" in r.text for r in remaining)
+
+
+def test_add_deduplicates_identical_text(tmp_path):
+    from deskpet.memory.store import MemoryStore
+    s = MemoryStore(tmp_path / "m.db")
+    a = s.add("the human spends a lot of time in brave", kind="habit", salience=0.6)
+    b = s.add("the human spends a lot of time in brave", kind="habit", salience=0.9)
+    assert a == b                         # same row reused
+    rows = s.recent(10)
+    assert len(rows) == 1                 # not duplicated
+    assert rows[0].salience == 0.9        # salience refreshed to the max
+
+
+def test_episodic_memory_gating(tmp_path):
+    """Episodes are written only on notable turns, throttled, from the thought."""
+    from deskpet.app import Application
+    from deskpet.memory.store import MemoryStore
+    from deskpet.types import Intent, Verb, Emotion
+
+    class Stub:
+        def __init__(self, store):
+            self.store = store
+            self._last_episode_t = 0.0
+        def _remember(self, text, *, kind="memory", salience=0.6):
+            self.store.add(text, kind=kind, salience=salience)
+        _maybe_record_episode = Application._maybe_record_episode
+
+    s = MemoryStore(tmp_path / "e.db")
+    st = Stub(s)
+
+    # notable (excited + thought) -> writes
+    st._maybe_record_episode(Intent(verb=Verb.POUNCE, emotion=Emotion.EXCITED,
+                                    say="Mine!", thought="kibble on screen, must eat"))
+    assert any(r.kind == "episode" for r in s.recent(10))
+
+    # immediately after -> throttled, no second episode
+    st._maybe_record_episode(Intent(verb=Verb.NAP, emotion=Emotion.AFFECTIONATE,
+                                    say="purr", thought="warm and smug"))
+    assert sum(1 for r in s.recent(10) if r.kind == "episode") == 1
+
+    # not notable (neutral, no say) even past the throttle -> skipped
+    st._last_episode_t = 0.0
+    st._maybe_record_episode(Intent(verb=Verb.IDLE, emotion=Emotion.NEUTRAL,
+                                    say=None, thought="meh"))
+    assert sum(1 for r in s.recent(10) if r.kind == "episode") == 1

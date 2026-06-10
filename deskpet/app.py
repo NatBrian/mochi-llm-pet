@@ -63,6 +63,7 @@ class Application:
         self._app_seconds: dict[str, float] = {}      # cumulative dwell per app
         self._noted_interactions: set[str] = set()
         self._last_level = self.petmgr.state.level
+        self._last_episode_t = 0.0                    # throttle episodic memories
         agent = BrainAgent(self.cfg, memory_store=store)
         agent.check_health()
 
@@ -194,6 +195,31 @@ class Application:
             self.window.say(intent.say)
         if intent.emotion in (Emotion.HAPPY, Emotion.AFFECTIONATE, Emotion.EXCITED):
             self.petmgr.reward(mood=0.05, bond=0.01, xp=2)
+        self._maybe_record_episode(intent)
+
+    # ---- episodic memory: what the cat saw + did + felt -------------------- #
+    def _maybe_record_episode(self, intent) -> None:
+        """Occasionally persist a one-line EPISODE — the pet's own recollection of
+        a moment (its private `thought`, which captures what it saw and why it
+        reacted). Throttled + notable-only so memory doesn't flood; deduped by the
+        store. This gives the cat episodic continuity: it can recall past
+        experiences, not just facts about the human."""
+        import time as _time
+        from .types import Emotion
+
+        thought = (intent.thought or "").strip()
+        if not thought:
+            return
+        if _time.time() - self._last_episode_t < 60.0:   # at most ~1 / minute
+            return
+        strong = intent.emotion in (
+            Emotion.EXCITED, Emotion.SCARED, Emotion.AFFECTIONATE,
+            Emotion.ANNOYED, Emotion.MISCHIEVOUS,
+        )
+        if not (intent.say or strong):                   # only memorable moments
+            return
+        self._last_episode_t = _time.time()
+        self._remember(thought[:160], kind="episode", salience=0.42)
 
     # ---- shutdown ---------------------------------------------------------- #
     def _shutdown(self) -> None:

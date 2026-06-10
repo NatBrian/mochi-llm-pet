@@ -202,9 +202,16 @@ The placeholder cat is intentionally simple. To use the real pack:
 State lives in `deskpet.db` (SQLite). The **LLM never decides what to remember** —
 code does, so the model stays focused on behaviour. Two stores:
 
-- **`memories`** — notable facts, written automatically: which apps you spend time
-  in, being petted / poked / thrown, level-ups. They're retrieved by relevance
-  (current app + recency) back into the prompt, so the cat acts on what it knows.
+- **`memories`** — two kinds, written automatically:
+  - **Facts** about you — which apps you live in, being petted / poked / thrown,
+    level-ups.
+  - **Episodes** — the cat's own recollections of notable moments (what it saw +
+    did + felt, e.g. *"those kibble pictures on screen are torture; I must be
+    fed"*), captured on emotional turns and throttled so they don't flood.
+
+  Both are retrieved by relevance (current app + recency) back into the prompt, so
+  the cat acts on what it knows *and* can call back to what it's lived through
+  ("you teased me with food earlier — I haven't forgotten").
 - **`pet_state`** — energy, mood, bond, level, xp. Energy drains awake and regens
   while napping; mood eases to neutral; bond/xp climb with positive interaction.
   Saved periodically (survives a hard kill) and reloaded on start — so the

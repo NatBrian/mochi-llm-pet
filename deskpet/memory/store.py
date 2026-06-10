@@ -80,6 +80,19 @@ class MemoryStore:
         text = text.strip()
         if not text:
             return -1
+        # de-duplicate: the same fact (e.g. an app habit or a poke) recurs every
+        # session — refresh the existing row's recency/salience instead of piling
+        # up identical copies that crowd out retrieval.
+        existing = self.db.execute(
+            "SELECT id, salience FROM memories WHERE text = ? LIMIT 1", (text,)
+        ).fetchone()
+        if existing:
+            self.db.execute(
+                "UPDATE memories SET ts = ?, salience = ? WHERE id = ?",
+                (time.time(), max(float(salience), float(existing["salience"])), existing["id"]),
+            )
+            self.db.commit()
+            return int(existing["id"])
         cur = self.db.execute(
             "INSERT INTO memories (ts, text, kind, keywords, salience) VALUES (?,?,?,?,?)",
             (time.time(), text, kind, _keywords(text), float(salience)),

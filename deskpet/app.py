@@ -60,6 +60,8 @@ class Application:
         # memory/persistence bookkeeping
         self._last_save = 0.0
         self._noted_apps: set[str] = set()
+        self._app_seconds: dict[str, float] = {}      # cumulative dwell per app
+        self._noted_interactions: set[str] = set()
         self._last_level = self.petmgr.state.level
         agent = BrainAgent(self.cfg, memory_store=store)
         agent.check_health()
@@ -80,6 +82,7 @@ class Application:
         self.body = Body(start_pos=Vec2(start.x, start.y - 150))
         self.body.attach_player(self.player)
         self.body.on_action_done = lambda: self.bus.emit(TriggerEvent.BODY_ACTION_DONE)
+        self.body.on_interaction = self._on_interaction
 
         self.window = PetWindow(self.body, self.player, scale=self.cfg.render.scale)
         self.window.show()
@@ -133,11 +136,15 @@ class Application:
             self._last_level = state.level
             self._remember(f"leveled up to {state.level} — getting more attached "
                            f"to the human", salience=0.8)
-        if fg and state.time_in_app_s > 300 and fg not in self._noted_apps:
-            self._noted_apps.add(fg)
-            app = fg[:-4] if fg.lower().endswith(".exe") else fg
-            self._remember(f"the human spends a lot of time in {app}",
-                           kind="habit", salience=0.6)
+        # CUMULATIVE time per app (survives tab-switching, unlike state.time_in_app_s
+        # which resets the moment the foreground changes). Fires once per app.
+        if fg:
+            self._app_seconds[fg] = self._app_seconds.get(fg, 0.0) + 1.0
+            if self._app_seconds[fg] >= 60 and fg not in self._noted_apps:
+                self._noted_apps.add(fg)
+                app = fg[:-4] if fg.lower().endswith(".exe") else fg
+                self._remember(f"the human spends a lot of time in {app}",
+                               kind="habit", salience=0.6)
 
         # --- persist pet state periodically (survives a kill, not just a clean
         #     exit) so deskpet.db reflects the live personality drift ---------- #
@@ -154,6 +161,29 @@ class Application:
             log.info("📝 remembered: %s", text)
         except Exception:  # noqa: BLE001
             pass
+
+    # ---- physical interactions (pet / poke / throw) — from body reflexes ---- #
+    _INTERACTION_REWARD = {
+        "pet":   {"mood": 0.06, "bond": 0.03, "xp": 1},   # loved -> bonds fast
+        "throw": {"mood": 0.02, "bond": 0.01, "xp": 1},   # chaotic fun
+        "poke":  {"mood": -0.03, "bond": 0.0, "xp": 0},   # annoying, no bond
+    }
+    _INTERACTION_MEMORY = {
+        "pet": "the human gives good pets — i permit it",
+        "poke": "the human poked me today — the audacity",
+        "throw": "the human picked me up and flung me — rude, but kind of fun",
+    }
+
+    def _on_interaction(self, kind: str) -> None:
+        """The user physically touched the pet. Adjust mood/bond by the kind of
+        touch, and record it once per kind per session (so it doesn't spam)."""
+        self.petmgr.reward(**self._INTERACTION_REWARD.get(
+            kind, {"mood": 0.02, "bond": 0.01, "xp": 1}))
+        if kind in self._noted_interactions:
+            return
+        self._noted_interactions.add(kind)
+        if kind in self._INTERACTION_MEMORY:
+            self._remember(self._INTERACTION_MEMORY[kind], kind="interaction", salience=0.5)
 
     # ---- new intent from the brain (main thread) --------------------------- #
     def _on_intent(self, intent) -> None:

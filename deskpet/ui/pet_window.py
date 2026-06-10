@@ -13,6 +13,7 @@ converts to Qt LOGICAL pixels via the screen's devicePixelRatio at the edges.
 from __future__ import annotations
 
 import time
+from collections import deque
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPainter, QPixmap
@@ -52,10 +53,17 @@ class PetWindow(QWidget):
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, True)
+        # receive hover moves (no button held) so we can detect petting strokes
+        self.setMouseTracking(True)
 
         self._dragging = False
         self._hwnd = 0
         self._t0 = time.monotonic()
+        # petting (hover-stroke) detection state
+        self._stroke_times: deque[float] = deque(maxlen=8)
+        self._stroke_last_x: float | None = None
+        self._stroke_dir = 0
+        self._last_pet_t = 0.0
 
     # ---- lifecycle --------------------------------------------------------- #
     def show(self) -> None:  # type: ignore[override]
@@ -149,6 +157,33 @@ class PetWindow(QWidget):
             g = evt.globalPosition()
             dpr = self._dpr()
             self.body.drag_to(Vec2(g.x() * dpr, g.y() * dpr), time.monotonic())
+            return
+        # not pressed -> hovering over the sprite. Back-and-forth motion = petting.
+        self._detect_stroke(evt.globalPosition().x())
+
+    def _detect_stroke(self, x: float) -> None:
+        """A petting stroke = the cursor wiping back and forth over the cat. We
+        count direction reversals in a short window; enough of them -> a pet."""
+        now = time.monotonic()
+        if self._stroke_last_x is not None:
+            dx = x - self._stroke_last_x
+            if abs(dx) >= 3:                       # ignore jitter
+                d = 1 if dx > 0 else -1
+                if self._stroke_dir and d != self._stroke_dir:
+                    self._stroke_times.append(now)  # a reversal = one wipe
+                self._stroke_dir = d
+        self._stroke_last_x = x
+        while self._stroke_times and now - self._stroke_times[0] > 1.2:
+            self._stroke_times.popleft()
+        # >=2 reversals within 1.2s, throttled to ~2/sec, = active petting
+        if len(self._stroke_times) >= 2 and now - self._last_pet_t > 0.5:
+            self._last_pet_t = now
+            self.body.pet()
+
+    def leaveEvent(self, _evt) -> None:
+        self._stroke_last_x = None
+        self._stroke_dir = 0
+        self._stroke_times.clear()
 
     def mouseReleaseEvent(self, evt) -> None:
         if not self._dragging:

@@ -16,6 +16,7 @@ GRAVITY = 1600.0       # px/s^2
 RESTITUTION = 0.45     # bounce energy retained
 FRICTION = 0.8         # horizontal damping per bounce
 SETTLE_SPEED = 30.0    # below this on the floor -> settle
+EDGE_PAD = 8.0         # px inset so the pet lands on a window's body, not its corner
 
 
 class Physics:
@@ -45,16 +46,16 @@ class Physics:
 
     # ---- simulation -------------------------------------------------------- #
     def step(self, motion: MotionState, dt: float, monitors: tuple[Rect, ...],
-             taskbar: Rect | None) -> None:
+             taskbar: Rect | None, windows: tuple = ()) -> None:
         if self.state in ("done", "held"):
             return
         motion.vel = Vec2(motion.vel.x, motion.vel.y + GRAVITY * dt)
+        prev_y = motion.pos.y
         motion.pos = motion.pos + motion.vel * dt
 
         bounds = monitors[0] if monitors else Rect(0, 0, 1920, 1080)
-        floor = (taskbar.top if taskbar else bounds.bottom) - self.half
 
-        # side walls
+        # side walls — MONITOR edges only; the pet passes through window sides
         if motion.pos.x < bounds.left + self.half:
             motion.pos = Vec2(bounds.left + self.half, motion.pos.y)
             motion.vel = Vec2(-motion.vel.x * RESTITUTION, motion.vel.y)
@@ -67,7 +68,8 @@ class Physics:
             motion.pos = Vec2(motion.pos.x, bounds.top + self.half)
             motion.vel = Vec2(motion.vel.x, -motion.vel.y * RESTITUTION)
 
-        # floor / taskbar
+        # floor: taskbar/monitor bottom, OR a window TOP the pet is landing on.
+        floor = self._floor_at(motion.pos.x, prev_y, motion.pos.y, bounds, taskbar, windows)
         if motion.pos.y >= floor:
             motion.pos = Vec2(motion.pos.x, floor)
             if abs(motion.vel.y) < SETTLE_SPEED and abs(motion.vel.x) < SETTLE_SPEED:
@@ -75,6 +77,26 @@ class Physics:
                 self.state = "done"
             else:
                 motion.vel = Vec2(motion.vel.x * FRICTION, -motion.vel.y * RESTITUTION)
+
+    def _floor_at(self, x: float, prev_c: float, new_c: float, bounds: Rect,
+                  taskbar: Rect | None, windows: tuple) -> float:
+        """The y the pet's center settles at for the given x. The taskbar / monitor
+        bottom is always solid. Window TOP edges are ONE-WAY platforms: solid only
+        when the pet is descending through the top edge (so it can hit/land on a
+        window top, but passes through the sides and from underneath)."""
+        floor = (taskbar.top if taskbar else bounds.bottom) - self.half
+        ceiling = bounds.top + self.half
+        for w in windows:
+            r = w.rect
+            if not (r.left + EDGE_PAD <= x <= r.right - EDGE_PAD):
+                continue                      # not horizontally over this window
+            surf = r.top - self.half
+            if surf <= ceiling or surf >= floor:
+                continue                      # pinned to screen top, or below the floor
+            # one-way: only catch while the center crosses the top edge downward
+            if prev_c <= surf <= new_c:
+                floor = surf
+        return floor
 
     @property
     def active(self) -> bool:

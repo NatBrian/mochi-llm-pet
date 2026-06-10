@@ -103,3 +103,62 @@ def test_poke_reacts_annoyed():
     b.poke()
     assert b.current_intent.emotion is Emotion.ANNOYED
     assert b.current_intent.say
+
+
+def test_interaction_callback_fires():
+    b = Body(start_pos=Vec2(300, 300))
+    got = []
+    b.on_interaction = lambda kind: got.append(kind)
+    b.poke()                       # quick tap -> "poke"
+    b.grab()
+    b.drag_to(Vec2(310, 310), 0.0)
+    b.release(0.1)                 # drag + release -> "throw"
+    assert "poke" in got
+    assert "throw" in got
+
+
+def test_poke_cancels_grab_physics():
+    # a press calls grab() (physics held); a tap must cancel it, not freeze
+    b = Body(start_pos=Vec2(300, 300))
+    b.grab()
+    assert b.physics.active          # held
+    b.poke()
+    assert not b.physics.active      # poke cancelled the grab
+    assert b.current_intent.emotion is Emotion.ANNOYED
+
+
+def test_pet_is_affectionate_reflex():
+    b = Body(start_pos=Vec2(300, 300))
+    kinds = []
+    b.on_interaction = lambda k: kinds.append(k)
+    b.pet()
+    assert b.current_intent.emotion is Emotion.AFFECTIONATE
+    assert not b.physics.active
+    assert kinds == ["pet"]
+
+
+def _throw_until_settled(x, vy, windows=()):
+    from deskpet.body.physics import Physics
+    from deskpet.body.motion import MotionState
+    mon = Rect(0, 0, 1920, 1080)
+    taskbar = Rect(0, 1040, 1920, 1080)
+    ph = Physics(sprite_half=24)
+    ph.state = "thrown"
+    m = MotionState(pos=Vec2(x, 120), vel=Vec2(0, vy))
+    for _ in range(3000):
+        ph.step(m, 0.016, (mon,), taskbar, windows)
+        if ph.state == "done":
+            break
+    return m.pos
+
+
+def test_throw_lands_on_window_top():
+    win = WindowInfo(1, "Code.exe", 1, "x", Rect(800, 400, 1400, 1040), 0, True, "code")
+    pos = _throw_until_settled(1000, 200, windows=(win,))   # x over the window
+    assert abs(pos.y - (400 - 24)) < 2          # rests on the window's top edge
+
+
+def test_throw_beside_window_lands_on_taskbar():
+    win = WindowInfo(1, "Code.exe", 1, "x", Rect(800, 400, 1400, 1040), 0, True, "code")
+    pos = _throw_until_settled(300, 200, windows=(win,))     # x NOT over the window
+    assert abs(pos.y - (1040 - 24)) < 2         # falls past to the taskbar

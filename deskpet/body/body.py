@@ -50,6 +50,7 @@ class Body:
         self._cur_gen = 0
         self._done_signaled = False
         self.on_action_done: Optional[Callable[[], None]] = None
+        self.on_interaction: Optional[Callable[[str], None]] = None  # "poke"|"throw"
         self.anim_state = "idle"
         # animation richness: random variant pools + LLM-chosen emotes
         self._rng = random.Random()
@@ -113,18 +114,38 @@ class Body:
 
     def release(self, t: float) -> None:
         self.physics.release(self.motion, t)
+        if self.on_interaction:
+            self.on_interaction("throw")
 
     def poke(self) -> None:
         """A quick tap — react with annoyance but don't enter physics."""
+        # a press always calls grab() first; a tap (no drag) must cancel that
+        # grab so the pet doesn't stay stuck in the held physics state.
+        self.physics.state = "done"
+        if self.on_interaction:
+            self.on_interaction("poke")
         self.current_intent = Intent(verb=Verb.EMOTION, emotion=Emotion.ANNOYED,
                                      say="mrrp!", thought="(poked)")
         self._done_signaled = False
         self._set_emote("flinch")
 
+    def pet(self) -> None:
+        """Gentle stroking (hover + back-and-forth over the body). The cat loves
+        it: affectionate reflex, kneads, occasionally purrs. No physics."""
+        if self.physics.active:
+            return
+        purr = "*purrrr*" if self._rng.random() < 0.18 else None
+        self.current_intent = Intent(verb=Verb.EMOTION, emotion=Emotion.AFFECTIONATE,
+                                     say=purr, thought="(being petted)")
+        self._done_signaled = False
+        self._set_emote("knead")
+        if self.on_interaction:
+            self.on_interaction("pet")
+
     # ---- the 60fps step ---------------------------------------------------- #
     def step(self, dt: float, snap: WorldSnapshot) -> None:
         if self.physics.active:
-            self.physics.step(self.motion, dt, snap.monitors, snap.taskbar)
+            self.physics.step(self.motion, dt, snap.monitors, snap.taskbar, snap.windows)
             self.anim_state = "fall" if self.physics.state == "thrown" else "sit"
             if self.physics.state == "done":
                 # settled -> resume; ask the brain what to do next

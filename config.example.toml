@@ -1,0 +1,53 @@
+# DeskPet configuration. Copy to `config.toml` and edit, or rely on these defaults.
+# Environment variables override everything here (env always wins):
+#   DESKPET_LLM_PROVIDER / DESKPET_LLM_MODEL / DESKPET_LLM_BASE_URL / DESKPET_LLM_API_KEY
+#   OPENAI_API_KEY / ANTHROPIC_API_KEY / GEMINI_API_KEY  (auto-read for the matching provider)
+#   DESKPET_CONFIG (path to this file)  /  DESKPET_LOG_LEVEL (DEBUG|INFO|...)
+
+[llm]
+provider    = "ollama"          # ollama | openai | openai_compat | anthropic | gemini
+model       = "gemma4:12b"
+# Empty = provider default (Ollama -> http://127.0.0.1:11434, OpenAI/Gemini -> public API).
+# For a Windows pet talking to Ollama on ANOTHER machine, point this at that box,
+# e.g. "http://192.168.1.50:11434", and start Ollama there with OLLAMA_HOST=0.0.0.0
+base_url    = ""
+api_key     = ""                # cloud providers only; prefer the env var
+temperature = 0.7
+timeout_s   = 90
+think       = false             # gemma: suppress <think> tokens
+# Constrained JSON-grammar decoding: most reliable, but the FIRST call compiles the
+# grammar and is slow (can be 30s+ under GPU load). Set false to lean on the robust
+# parser instead and cut latency markedly. (ollama / openai_compat)
+structured  = true
+
+[vision]
+enabled  = true                 # send a screenshot to the model
+mode     = "active_window"      # active_window | monitor
+max_edge = 768                  # downscale longest edge (controls token cost)
+format   = "png"                # png | jpeg
+
+[memory]
+db_path     = "deskpet.db"
+top_k       = 5
+embeddings  = false             # keyword retrieval by default
+embed_model = "nomic-embed-text"
+max_rows    = 5000
+
+[triggers]
+heartbeat_s      = 20           # baseline "what should I do now?" cadence
+min_interval_s   = 4            # floor between LLM calls
+idle_threshold_s = 120          # user-idle event fires after this
+
+[perception]
+fast_ms   = 200                 # cursor + foreground
+medium_ms = 1000                # window list + idle + clipboard + titles
+slow_ms   = 5000                # process names
+caret     = false               # UI-Automation caret (best-effort, off by default)
+
+[persona]
+name = "mochi"                  # which character personality to load
+
+[render]
+fps        = 60
+scale      = 3                  # integer upscale of the 32px sprite
+assets_dir = "assets"

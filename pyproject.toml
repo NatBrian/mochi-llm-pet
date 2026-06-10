@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deskpet"
+version = "0.1.0"
+description = "An LLM-driven virtual pet that lives on the Windows desktop"
+requires-python = ">=3.11"
+dependencies = [
+    "mss==9.0.1",
+    "Pillow==10.4.0",
+    "httpx==0.27.2",
+    "anthropic==0.39.0",
+    "pydantic==2.9.2",
+    "tenacity==9.0.0",
+    "PyYAML==6.0.2",
+    "psutil==6.0.0",
+    "PyQt6==6.7.1 ; sys_platform == 'win32'",
+    "pywin32==306 ; sys_platform == 'win32'",
+    "uiautomation==2.0.20 ; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.3", "respx==0.21.1"]
+
+[project.scripts]
+deskpet = "deskpet.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["deskpet*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,19 @@
+# Core (cross-platform)
+mss==9.0.1
+Pillow==10.4.0
+httpx==0.27.2
+anthropic==0.39.0
+pydantic==2.9.2
+tenacity==9.0.0
+PyYAML==6.0.2
+psutil==6.0.0
+tomli==2.0.1 ; python_version < "3.11"
+
+# GUI + Windows perception (installed/active only on the Windows run box)
+PyQt6==6.7.1 ; sys_platform == "win32"
+pywin32==306 ; sys_platform == "win32"
+uiautomation==2.0.20 ; sys_platform == "win32"
+
+# Dev/test
+pytest==8.3.3
+respx==0.21.1

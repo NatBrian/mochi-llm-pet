@@ -1,8 +1,6 @@
 # Mochi 🐱 — an LLM-powered virtual desktop pet
 
-<p align="center">
-  <video src="assets/demo.mp4" controls width="600"></video>
-</p>
+https://github.com/user-attachments/assets/4e0e6054-b2d3-41e2-8e87-6cdb13ce9ff7
 
 **Mochi is an AI desktop pet / desktop mascot driven by a multimodal LLM.** A
 transparent, always-on-top pixel cat that *sees your whole desktop* — window

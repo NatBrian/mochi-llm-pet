@@ -67,12 +67,15 @@ def scene_text(world: WorldSnapshot, now: float | None = None) -> str:
     else:
         lines.append("ACTIVE: (none)")
 
+    # NOTE: titles of background windows are deliberately omitted — they're for
+    # navigation/targeting only, and feeding raw titles tempts the model to recite
+    # the screen instead of behaving like a cat.
     others = [w for w in world.windows if not w.is_foreground][:5]
     if others:
         lines.append("WINDOWS:")
         for w in others:
             cg = f" [{w.content_guess}]" if w.content_guess else ""
-            lines.append(f'  - {w.process} "{w.title}"{cg}')
+            lines.append(f'  - {w.process}{cg}')
 
     over = ""
     if world.foreground and world.foreground.rect.contains(world.cursor):

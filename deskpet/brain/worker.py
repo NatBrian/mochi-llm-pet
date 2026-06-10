@@ -47,6 +47,8 @@ class BrainWorker(QObject):
 
         seed = fallback.rule_based(self.world.read())
         self._gen += 1
+        log.info("seeded instant rule-based intent (%s) while the first LLM "
+                 "decision runs…", seed.verb.value)
         self.intentReady.emit(seed.with_gen(self._gen))
         # now make the first real LLM decision
         self._decide("startup")
@@ -69,9 +71,38 @@ class BrainWorker(QObject):
             return
         self._gen += 1
         intent = intent.with_gen(self._gen)
-        log.info("[%s] %s target=%s emotion=%s", reason, intent.verb.value,
-                 intent.target, intent.emotion.value)
+        self._log_decision(reason, snap, intent)
         self.intentReady.emit(intent)
+
+    def _log_decision(self, reason: str, snap, intent) -> None:
+        """A readable per-decision block: why it woke, what it perceived, what it
+        chose, what it says, and what it's privately thinking."""
+        from .scene import _dur, _mood_word
+
+        source = getattr(self.agent, "last_source", "llm")
+        via = "LLM" if source == "llm" else "instinct (rule-based)"
+
+        fg = snap.foreground
+        app = "(none)"
+        if fg:
+            app = fg.process + (f"[{fg.content_guess}]" if fg.content_guess else "")
+        p = snap.pet
+        near = (snap.cursor - snap.pet_pos).length()
+
+        log.info("┌─ wake [%s]  via %s", reason, via)
+        log.info("│  sees: app=%s  cursor=(%d,%d) %s  idle=%s  energy=%.2f(%s) mood=%s",
+                 app, snap.cursor.x, snap.cursor.y,
+                 "NEAR-pet" if near < 220 else "far",
+                 _dur(snap.idle_s), p.energy,
+                 ("tired" if p.energy < 0.4 else "ok"), _mood_word(p.mood))
+        emote = f"  emote={intent.emote}" if intent.emote else ""
+        log.info("│  does: %s → %s   feeling %s%s   (conf %.2f)",
+                 intent.verb.value, intent.target or "—", intent.emotion.value,
+                 emote, intent.confidence)
+        log.info("│  💬 %s", f'"{intent.say}"' if intent.say else "(stays quiet)")
+        if intent.thought:
+            log.info("│  🧠 %s", intent.thought)
+        log.info("└─")
 
 
 def start_worker(cfg: Config, agent: BrainAgent, world, bus: EventBus):

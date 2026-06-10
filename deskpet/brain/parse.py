@@ -114,6 +114,17 @@ def _clean_str(value: Any, limit: int) -> Optional[str]:
     return value[:limit]
 
 
+def _pet_say(value: Any) -> Optional[str]:
+    """Clean the spoken line, then drop it entirely if it reads as an AI
+    assistant (offering help / claiming abilities) — a cat stays silent instead."""
+    from .speech import sounds_like_assistant
+
+    text = _clean_str(value, 220)
+    if text and sounds_like_assistant(text):
+        return None
+    return text
+
+
 def _coerce_emote(value: Any) -> Optional[str]:
     """Keep an emote only if it's a known token (closed vocabulary)."""
     from ..sprite.expressions import EMOTE_TOKENS
@@ -156,7 +167,7 @@ def coerce_intent(data: dict) -> Intent:
         edge=edge,
         emotion=emotion,
         emote=_coerce_emote(data.get("emote")),
-        say=_clean_str(data.get("say"), 220),
+        say=_pet_say(data.get("say")),
         thought=_clean_str(data.get("thought"), 200) or "",
         remember=_clean_str(data.get("remember"), 200),
         duration_hint_s=dur,

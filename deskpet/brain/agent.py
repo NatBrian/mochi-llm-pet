@@ -26,6 +26,7 @@ class BrainAgent:
         self.cfg = cfg
         self.memory = memory_store
         self.degraded = False
+        self.last_source = "llm"   # "llm" | "rule" — set per decide(), for logging
         try:
             self.provider = make_provider(cfg.llm)
         except ProviderError as e:
@@ -47,10 +48,16 @@ class BrainAgent:
                 f"(rule-based) until it's back."
             )
             self.degraded = True
+        else:
+            log.info("brain online: provider=%s model=%s base_url=%s vision=%s",
+                     self.cfg.llm.provider, self.cfg.llm.model,
+                     self.cfg.llm.base_url or "default",
+                     "on" if self.cfg.vision.enabled else "off")
         return ok
 
     def decide(self, world: WorldSnapshot, *, retrieve_k: int = 5) -> Intent:
         if self.degraded or not self.provider:
+            self.last_source = "rule"
             return fallback.rule_based(world)
 
         memories = []
@@ -59,28 +66,38 @@ class BrainAgent:
                 from ..memory.retrieval import retrieve
 
                 memories = retrieve(self.memory, world, k=retrieve_k)
+                if memories:
+                    log.debug("recalled %d memories: %s", len(memories),
+                              " | ".join(m.text[:60] for m in memories))
             except Exception as e:  # noqa: BLE001
                 log.debug("memory retrieval failed: %s", e)
 
         image = capture(self.cfg.vision, world)
         packet = build(world, memories, image, persona=self.cfg.persona.name)
+        log.debug("vision: %s", f"screenshot {len(image)} bytes" if image
+                  else "text-only (no image)")
+        log.debug("scene the LLM sees:\n%s", packet.user_text)
 
         try:
             data = self.provider.complete(
                 packet.system, packet.user_text, packet.image, packet.schema
             )
+            log.debug("raw LLM response: %s", data)
             intent = coerce_intent(data)
+            self.last_source = "llm"
         except ProviderError as e:
-            log.warning("provider call failed (%s); using rule-based", e)
+            log.warning("provider call failed (%s); using rule-based instinct", e)
+            self.last_source = "rule"
             return fallback.rule_based(world)
         except Exception as e:  # noqa: BLE001
-            log.warning("unexpected brain error (%s); using rule-based", e)
+            log.warning("unexpected brain error (%s); using rule-based instinct", e)
+            self.last_source = "rule"
             return fallback.rule_based(world)
 
-        log.debug("thought: %s | %s -> %s", intent.thought, intent.verb.value, intent.target)
         if intent.remember and self.memory is not None:
             try:
                 self.memory.add(intent.remember, kind="memory", salience=0.7)
+                log.info("📝 remembered: %s", intent.remember)
             except Exception:  # noqa: BLE001
                 pass
         return intent

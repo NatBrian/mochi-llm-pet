@@ -30,6 +30,7 @@ class BrainAgent:
         self.degraded = False
         self.last_source = "llm"   # "llm" | "rule" — set per decide(), for logging
         self._recent: deque[str] = deque(maxlen=6)  # recent actions, for anti-repetition
+        self._prev_fg: Optional[str] = None         # last foreground app, for delta notes
         try:
             self.provider = make_provider(cfg.llm)
         except ProviderError as e:
@@ -71,7 +72,31 @@ class BrainAgent:
             line += f' — "{intent.say}"'
         self._recent.append(line)
 
-    def decide(self, world: WorldSnapshot, *, retrieve_k: int = 5) -> Intent:
+    def _change_notes(self, world: WorldSnapshot, reason: str) -> list[str]:
+        """Turn the wake-trigger + foreground delta into plain 'what just changed'
+        lines, so the cat reacts to the EVENT, not just the static snapshot."""
+        notes: list[str] = []
+        fg = world.foreground.process if world.foreground else None
+        r = reason or ""
+        if r == "startup":
+            notes.append("a new session just started — you've just appeared on the desk")
+        elif "foreground_changed" in r:
+            if fg and self._prev_fg and fg != self._prev_fg:
+                notes.append(f"the human just switched from {self._prev_fg} to {fg}")
+            elif fg:
+                notes.append(f"the human just switched to {fg}")
+        elif "clipboard_changed" in r:
+            notes.append("the human just copied something")
+        elif "user_idle" in r:
+            notes.append("the human has gone quiet — no input for a while")
+        elif "pet_need_critical" in r:
+            notes.append("you're exhausted — energy critically low")
+        elif "heartbeat" in r and fg and self._prev_fg and fg != self._prev_fg:
+            notes.append(f"the active window is now {fg}")
+        self._prev_fg = fg
+        return notes
+
+    def decide(self, world: WorldSnapshot, *, reason: str = "", retrieve_k: int = 5) -> Intent:
         if self.degraded or not self.provider:
             self.last_source = "rule"
             return fallback.rule_based(world)
@@ -88,9 +113,11 @@ class BrainAgent:
             except Exception as e:  # noqa: BLE001
                 log.debug("memory retrieval failed: %s", e)
 
+        changes = self._change_notes(world, reason)
         image = capture(self.cfg.vision, world)
         packet = build(world, memories, image, persona=self.cfg.persona.name,
-                       recent=list(self._recent))
+                       recent=list(self._recent), changes=changes,
+                       share_titles=self.cfg.perception.share_titles)
         log.debug("vision: %s", f"screenshot {len(image)} bytes" if image
                   else "text-only (no image)")
         log.debug("scene the LLM sees:\n%s", packet.user_text)

@@ -1,0 +1,46 @@
+# ---- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+*.egg
+.installed.cfg
+
+# Virtual envs
+.venv/
+venv/
+env/
+ENV/
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ---- DeskPet runtime ------------------------------------------------------
+# Local user config — may contain API keys. Ship config.example.toml instead.
+config.toml
+
+# Persisted pet memory / state (per-machine, not source)
+*.db
+deskpet.db
+deskpet.db-journal
+deskpet.db-wal
+deskpet.db-shm
+
+# Logs
+*.log
+
+# ---- Editors / OS ---------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db

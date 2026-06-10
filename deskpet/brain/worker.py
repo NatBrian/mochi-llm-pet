@@ -65,7 +65,7 @@ class BrainWorker(QObject):
     def _decide(self, reason: str) -> None:
         try:
             snap = self.world.read()
-            intent = self.agent.decide(snap)
+            intent = self.agent.decide(snap, reason=reason)
         except Exception as e:  # noqa: BLE001 — the brain must never kill the app
             log.warning("decision failed (%s)", e)
             return

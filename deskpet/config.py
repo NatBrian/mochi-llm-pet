@@ -60,6 +60,13 @@ class PerceptionConfig(BaseModel):
     medium_ms: int = 1000
     slow_ms: int = 5000
     caret: bool = False
+    # Feed raw window titles (of ALL windows) to the LLM so it can recognise apps
+    # by name using its own knowledge. NOTE: when vision is on, the screenshot
+    # already sends your whole screen to the provider, so titles add nothing
+    # privacy-wise — the only real privacy is using LOCAL Ollama (everything stays
+    # on-device). This flag mainly matters in text-only mode (vision off) or to
+    # trim tokens; default on.
+    share_titles: bool = True
 
 
 class PersonaConfig(BaseModel):

@@ -61,6 +61,8 @@ class Application:
         self._last_save = 0.0
         self._noted_apps: set[str] = set()
         self._app_seconds: dict[str, float] = {}      # cumulative dwell per app
+        self._content_seconds: dict[str, float] = {}  # cumulative dwell per content type
+        self._noted_content: set[str] = set()
         self._noted_interactions: set[str] = set()
         self._last_level = self.petmgr.state.level
         self._last_episode_t = 0.0                    # throttle episodic memories
@@ -146,6 +148,13 @@ class Application:
                 app = fg[:-4] if fg.lower().endswith(".exe") else fg
                 self._remember(f"the human spends a lot of time in {app}",
                                kind="habit", salience=0.6)
+        # what KIND of thing the human does (content habit), e.g. watches videos
+        cg = snap.foreground.content_guess if snap.foreground else None
+        if cg in self._CONTENT_HABIT:
+            self._content_seconds[cg] = self._content_seconds.get(cg, 0.0) + 1.0
+            if self._content_seconds[cg] >= 180 and cg not in self._noted_content:
+                self._noted_content.add(cg)
+                self._remember(self._CONTENT_HABIT[cg], kind="habit", salience=0.55)
 
         # --- persist pet state periodically (survives a kill, not just a clean
         #     exit) so deskpet.db reflects the live personality drift ---------- #
@@ -162,6 +171,15 @@ class Application:
             log.info("📝 remembered: %s", text)
         except Exception:  # noqa: BLE001
             pass
+
+    # content_guess -> a habit the cat learns about WHAT the human does
+    _CONTENT_HABIT = {
+        "youtube": "the human watches a lot of videos",
+        "video": "the human watches a lot of videos",
+        "media": "the human watches a lot of videos",
+        "code": "the human codes a lot",
+        "web": "the human browses the web a lot",
+    }
 
     # ---- physical interactions (pet / poke / throw) — from body reflexes ---- #
     _INTERACTION_REWARD = {

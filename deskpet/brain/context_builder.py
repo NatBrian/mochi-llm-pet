@@ -26,8 +26,13 @@ def build(
     image: Optional[bytes],
     persona: str = "mochi",
     recent: Optional[list[str]] = None,
+    changes: Optional[list[str]] = None,
+    share_titles: bool = True,
 ) -> PromptPacket:
-    user = scene_text(world)
+    user = scene_text(world, share_titles=share_titles)
+    if changes:
+        user += ("\n\nJUST HAPPENED (react to this — it's why you're deciding now):\n"
+                 + "\n".join(f"  - {c}" for c in changes))
     user += "\n\nRELEVANT MEMORIES:\n" + format_for_prompt(memories)
     if recent:
         user += (

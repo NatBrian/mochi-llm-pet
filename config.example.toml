@@ -43,6 +43,10 @@ fast_ms   = 200                 # cursor + foreground
 medium_ms = 1000                # window list + idle + clipboard + titles
 slow_ms   = 5000                # process names
 caret     = false               # UI-Automation caret (best-effort, off by default)
+share_titles = true             # send raw window titles to the LLM (recognises any app).
+                                #   privacy note: with vision on, the screenshot already
+                                #   sends your screen — titles add nothing. Real privacy =
+                                #   local Ollama. Off only matters in text-only mode.
 
 [persona]
 name = "mochi"                  # which character personality to load

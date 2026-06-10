@@ -266,11 +266,16 @@ DESKPET_CONFIG (path to config.toml)     DESKPET_LOG_LEVEL (DEBUG|INFO|...)
 
 ## Privacy
 
-With the default local Ollama, **screenshots never leave your machine**. The app
-never writes screenshots to disk, stores only a *hash* of the clipboard (to detect
-change, never the content), and the model's private `thought` is shown only in
-*your* local logs. Cloud providers necessarily send the screenshot to that
-provider — use local Ollama if that matters to you.
+With the default local Ollama, **the screenshot and window titles never leave your
+machine**. The app never writes screenshots to disk, stores only a *hash* of the
+clipboard (to detect change, never the content), and the model's private `thought`
+is shown only in *your* local logs.
+
+Cloud providers necessarily receive the screenshot (your whole desktop) — and the
+window titles, which add nothing beyond what the screenshot already shows. So
+**real privacy = local Ollama**, where everything stays on-device. If you must use
+a cloud provider but want to send less, set `[perception].share_titles = false`
+(only meaningful in text-only mode, since the screenshot otherwise dominates).
 
 ---
 

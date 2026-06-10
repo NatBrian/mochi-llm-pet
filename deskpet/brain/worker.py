@@ -96,9 +96,9 @@ class BrainWorker(QObject):
                  _dur(snap.idle_s), p.energy,
                  ("tired" if p.energy < 0.4 else "ok"), _mood_word(p.mood))
         emote = f"  emote={intent.emote}" if intent.emote else ""
-        log.info("│  does: %s → %s   feeling %s%s   (conf %.2f)",
+        log.info("│  does: %s → %s   feeling %s%s",
                  intent.verb.value, intent.target or "—", intent.emotion.value,
-                 emote, intent.confidence)
+                 emote)
         log.info("│  💬 %s", f'"{intent.say}"' if intent.say else "(stays quiet)")
         if intent.thought:
             log.info("│  🧠 %s", intent.thought)

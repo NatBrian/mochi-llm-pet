@@ -12,7 +12,6 @@ def test_clean_json():
     assert it.target == "cursor"
     assert it.emotion is Emotion.CURIOUS
     assert it.say is None
-    assert abs(it.confidence - 0.8) < 1e-6
 
 
 def test_gemma_think_tokens():
@@ -47,11 +46,10 @@ def test_near_miss_verb_and_emotion():
 
 
 def test_invalid_verb_defaults_idle():
-    raw = '{"verb":"teleport","emotion":"???","thought":"x","say":null,"confidence":2.0}'
+    raw = '{"verb":"teleport","emotion":"???","thought":"x","say":null}'
     it = safe_parse(raw)
     assert it.verb is Verb.IDLE
     assert it.emotion is Emotion.NEUTRAL
-    assert it.confidence == 1.0  # clamped
 
 
 def test_explicit_point():

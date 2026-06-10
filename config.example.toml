@@ -22,8 +22,8 @@ structured  = true
 
 [vision]
 enabled  = true                 # send a screenshot to the model
-mode     = "active_window"      # active_window | monitor
-max_edge = 768                  # downscale longest edge (controls token cost)
+mode     = "monitor"            # monitor = whole desktop | active_window = focused app only
+max_edge = 1024                 # downscale longest edge (controls token cost)
 format   = "png"                # png | jpeg
 
 [memory]

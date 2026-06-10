@@ -1,12 +1,14 @@
 """BrainAgent — one perceive->think->act decision.
 
-Builds the prompt packet, calls the provider, coerces to an Intent, applies the
-`remember` field to memory. Falls back to the rule-based brain on any provider /
-parse failure so a decision is ALWAYS produced.
+Builds the prompt packet, calls the provider, coerces to an Intent. The model's
+ONLY job is controlling the pet (action + mood + expression + speech); memory and
+persistence are handled by code, not the LLM. Falls back to the rule-based brain
+on any provider / parse failure so a decision is ALWAYS produced.
 """
 
 from __future__ import annotations
 
+from collections import deque
 from typing import Optional
 
 from ..config import Config
@@ -27,6 +29,7 @@ class BrainAgent:
         self.memory = memory_store
         self.degraded = False
         self.last_source = "llm"   # "llm" | "rule" — set per decide(), for logging
+        self._recent: deque[str] = deque(maxlen=6)  # recent actions, for anti-repetition
         try:
             self.provider = make_provider(cfg.llm)
         except ProviderError as e:
@@ -55,6 +58,19 @@ class BrainAgent:
                      "on" if self.cfg.vision.enabled else "off")
         return ok
 
+    def _record(self, intent: Intent) -> None:
+        """Append a compact summary of this decision to the recent-action ring,
+        so the next prompt can push the model to do something different."""
+        parts = [intent.verb.value]
+        if intent.target:
+            parts.append(intent.target)
+        if intent.emote:
+            parts.append(f"*{intent.emote}*")
+        line = " ".join(parts)
+        if intent.say:
+            line += f' — "{intent.say}"'
+        self._recent.append(line)
+
     def decide(self, world: WorldSnapshot, *, retrieve_k: int = 5) -> Intent:
         if self.degraded or not self.provider:
             self.last_source = "rule"
@@ -73,7 +89,8 @@ class BrainAgent:
                 log.debug("memory retrieval failed: %s", e)
 
         image = capture(self.cfg.vision, world)
-        packet = build(world, memories, image, persona=self.cfg.persona.name)
+        packet = build(world, memories, image, persona=self.cfg.persona.name,
+                       recent=list(self._recent))
         log.debug("vision: %s", f"screenshot {len(image)} bytes" if image
                   else "text-only (no image)")
         log.debug("scene the LLM sees:\n%s", packet.user_text)
@@ -85,6 +102,7 @@ class BrainAgent:
             log.debug("raw LLM response: %s", data)
             intent = coerce_intent(data)
             self.last_source = "llm"
+            self._record(intent)
         except ProviderError as e:
             log.warning("provider call failed (%s); using rule-based instinct", e)
             self.last_source = "rule"
@@ -94,12 +112,9 @@ class BrainAgent:
             self.last_source = "rule"
             return fallback.rule_based(world)
 
-        if intent.remember and self.memory is not None:
-            try:
-                self.memory.add(intent.remember, kind="memory", salience=0.7)
-                log.info("📝 remembered: %s", intent.remember)
-            except Exception:  # noqa: BLE001
-                pass
+        # NOTE: memory is formed by CODE (app-level auto-memory), not by the LLM.
+        # The model's only job is controlling the pet — it never decides what to
+        # remember, so it isn't burdened with that task.
         return intent
 
 
@@ -141,10 +156,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     print(f"verb:      {intent.verb.value}")
     print(f"target:    {intent.target}")
     print(f"emotion:   {intent.emotion.value}")
+    print(f"emote:     {intent.emote}")
     print(f"say:       {intent.say}")
     print(f"thought:   {intent.thought}")
-    print(f"remember:  {intent.remember}")
-    print(f"confidence:{intent.confidence}")
     print(f"(degraded/rule-based: {agent.degraded})")
     return 0
 

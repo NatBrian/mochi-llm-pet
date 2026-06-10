@@ -57,6 +57,10 @@ class Application:
 
         store = MemoryStore(self.cfg.memory.db_path)
         self.petmgr = PetStateManager(store)
+        # memory/persistence bookkeeping
+        self._last_save = 0.0
+        self._noted_apps: set[str] = set()
+        self._last_level = self.petmgr.state.level
         agent = BrainAgent(self.cfg, memory_store=store)
         agent.check_health()
 
@@ -116,12 +120,40 @@ class Application:
     def _tick_state(self) -> None:
         from .triggers.events import TriggerEvent
 
+        now = time.time()
         snap = self.world.read()
         fg = snap.foreground.process if snap.foreground else None
         napping = self.body.anim_state == "sleep"
         state = self.petmgr.tick(napping=napping, foreground_app=fg)
         if state.energy < 0.15 and not napping:
             self.bus.emit(TriggerEvent.PET_NEED_CRITICAL, state.energy)
+
+        # --- automatic memory formation (so the pet genuinely remembers) ---- #
+        if state.level > self._last_level:
+            self._last_level = state.level
+            self._remember(f"leveled up to {state.level} — getting more attached "
+                           f"to the human", salience=0.8)
+        if fg and state.time_in_app_s > 300 and fg not in self._noted_apps:
+            self._noted_apps.add(fg)
+            app = fg[:-4] if fg.lower().endswith(".exe") else fg
+            self._remember(f"the human spends a lot of time in {app}",
+                           kind="habit", salience=0.6)
+
+        # --- persist pet state periodically (survives a kill, not just a clean
+        #     exit) so deskpet.db reflects the live personality drift ---------- #
+        if now - self._last_save > 20.0:
+            self._last_save = now
+            try:
+                self.petmgr.save()
+            except Exception:  # noqa: BLE001
+                pass
+
+    def _remember(self, text: str, *, kind: str = "memory", salience: float = 0.6) -> None:
+        try:
+            self.petmgr.store.add(text, kind=kind, salience=salience)
+            log.info("📝 remembered: %s", text)
+        except Exception:  # noqa: BLE001
+            pass
 
     # ---- new intent from the brain (main thread) --------------------------- #
     def _on_intent(self, intent) -> None:

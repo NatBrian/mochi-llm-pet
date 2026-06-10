@@ -17,34 +17,32 @@ EMOTES: list[str] = sorted(EMOTE_TOKENS)
 
 
 def intent_json_schema() -> dict:
-    """JSON Schema (draft subset) for the Intent object."""
+    """JSON Schema (draft subset) for the Intent object.
+
+    Deliberately small: the LLM has ONE job — control the pet. It outputs an
+    action (verb + where), a mood, optional expression + speech, and a private
+    reason. Memory, persistence, confidence, pixel math etc. are handled by code,
+    not the model, so it never has to think about them."""
     return {
         "type": "object",
         "properties": {
-            "thought": {"type": "string", "description": "private reasoning, <=200 chars"},
-            "verb": {"type": "string", "enum": VERBS},
+            "thought": {"type": "string", "description": "your private reason, <=200 chars (not shown)"},
+            "verb": {"type": "string", "enum": VERBS, "description": "the action to take"},
             "target": {
                 "type": ["string", "null"],
-                "description": "a name from the NAMES list, or null",
+                "description": "where: a name from the NAMES list, or null",
             },
-            "point": {
-                "type": ["object", "null"],
-                "properties": {"x": {"type": "number"}, "y": {"type": "number"}},
-                "description": "explicit pixel target; usually null",
-            },
-            "edge": {"type": ["string", "null"], "enum": ["top", "bottom", "left", "right", None]},
-            "emotion": {"type": "string", "enum": EMOTIONS},
+            "edge": {"type": ["string", "null"], "enum": ["top", "bottom", "left", "right", None],
+                     "description": "for sit_on: which side of the window to perch on"},
+            "emotion": {"type": "string", "enum": EMOTIONS, "description": "your current mood"},
             "emote": {
                 "type": ["string", "null"],
                 "enum": EMOTES + [None],
-                "description": "optional expressive animation to play for flavor (see persona menu), or null",
+                "description": "optional expressive animation (see persona menu), or null",
             },
-            "say": {"type": ["string", "null"], "description": "what the pet says out loud, 1-3 short sentences, <=220 chars, or null"},
-            "remember": {"type": ["string", "null"], "description": "fact worth persisting, or null"},
-            "duration_hint_s": {"type": ["number", "null"]},
-            "confidence": {"type": "number"},
+            "say": {"type": ["string", "null"], "description": "what you say out loud, <=220 chars, or null for silence"},
         },
-        "required": ["thought", "verb", "emotion", "say", "confidence"],
+        "required": ["verb", "emotion"],
         "additionalProperties": False,
     }
 
@@ -76,11 +74,8 @@ def gemini_schema() -> dict:
             "emotion": field("STRING", enum=EMOTIONS),
             "emote": field("STRING", nullable=True),
             "say": field("STRING", nullable=True),
-            "remember": field("STRING", nullable=True),
-            "duration_hint_s": field("NUMBER", nullable=True),
-            "confidence": field("NUMBER"),
         },
-        "required": ["thought", "verb", "emotion", "confidence"],
+        "required": ["verb", "emotion"],
     }
 
 
@@ -96,7 +91,4 @@ def summary_for_prompt() -> str:
         f'  "emotion": one of {EMOTIONS}\n'
         f'  "emote": optional expressive animation, one of {EMOTES}, or null\n'
         '  "say": what the pet says, 1-3 short sentences, <=220 chars, or null\n'
-        '  "remember": a fact worth persisting, or null\n'
-        '  "duration_hint_s": number or null\n'
-        '  "confidence": number 0..1\n'
     )

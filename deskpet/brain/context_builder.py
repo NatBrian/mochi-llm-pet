@@ -25,9 +25,17 @@ def build(
     memories: list[MemoryRecord],
     image: Optional[bytes],
     persona: str = "mochi",
+    recent: Optional[list[str]] = None,
 ) -> PromptPacket:
     user = scene_text(world)
     user += "\n\nRELEVANT MEMORIES:\n" + format_for_prompt(memories)
+    if recent:
+        user += (
+            "\n\nWHAT YOU JUST DID (your last few turns, newest last). DO NOT "
+            "repeat the same action or reuse the same words — a real cat does "
+            "something DIFFERENT. Change your verb, your mood, AND your line:\n"
+            + "\n".join(f"  - {r}" for r in recent)
+        )
     if world.user_said:
         user += f'\n\nThe user just said to you: "{world.user_said}"'
     user += "\n\nDecide your next action. Respond with the JSON intent only."

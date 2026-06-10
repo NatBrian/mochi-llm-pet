@@ -36,8 +36,8 @@ class LLMConfig(BaseModel):
 
 class VisionConfig(BaseModel):
     enabled: bool = True
-    mode: str = "active_window"           # active_window|monitor
-    max_edge: int = 768
+    mode: str = "monitor"                 # monitor=whole desktop | active_window=focused app only
+    max_edge: int = 1024
     format: str = "png"                   # png|jpeg
 
 

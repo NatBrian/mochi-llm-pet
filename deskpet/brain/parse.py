@@ -148,18 +148,10 @@ def coerce_intent(data: dict) -> Intent:
     else:
         edge = None
 
-    try:
-        confidence = float(data.get("confidence", 0.5))
-    except (TypeError, ValueError):
-        confidence = 0.5
-    confidence = max(0.0, min(1.0, confidence))
-
-    dur = data.get("duration_hint_s")
-    try:
-        dur = float(dur) if dur is not None else None
-    except (TypeError, ValueError):
-        dur = None
-
+    # The LLM's only job is controlling the pet, so it emits just these fields.
+    # point/remember/duration/confidence are handled by code, not the model —
+    # they keep their Intent defaults. (point is still parsed if a tool/test
+    # supplies it, but the LLM is never asked for it.)
     return Intent(
         verb=verb,
         target=_clean_str(data.get("target"), 80),
@@ -169,9 +161,6 @@ def coerce_intent(data: dict) -> Intent:
         emote=_coerce_emote(data.get("emote")),
         say=_pet_say(data.get("say")),
         thought=_clean_str(data.get("thought"), 200) or "",
-        remember=_clean_str(data.get("remember"), 200),
-        duration_hint_s=dur,
-        confidence=confidence,
     )
 
 

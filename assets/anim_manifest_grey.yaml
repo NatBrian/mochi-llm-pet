@@ -1,0 +1,122 @@
+# Auto-generated from the Bow.Pixel 'Cat 85+' .aseprite by
+# deskpet.tools.aseprite_to_manifest. Frames are linear indices into the
+# sheet (row = idx // columns, col = idx % columns).
+sheet: Cat_85_Animations/Cat_Grey.png
+frame_size: [32, 32]
+columns: 10
+default_fps: 10
+states:
+  Idle_1: { from: 0, to: 3, fps: 10.0, loop: true }
+  Idle_2: { from: 10, to: 13, fps: 10.0, loop: true }
+  Idle_3: { from: 20, to: 27, fps: 10.0, loop: true }
+  Idle_4: { from: 30, to: 37, fps: 10.0, loop: true }
+  Idle_5: { from: 40, to: 47, fps: 10.0, loop: true }
+  W_1: { from: 50, to: 57, fps: 10.0, loop: true }
+  W_2: { from: 60, to: 67, fps: 10.0, loop: true }
+  Sit_1: { from: 70, to: 77, fps: 10.0, loop: true }
+  Sit_2: { from: 80, to: 87, fps: 10.0, loop: true }
+  Sit_Tilt_1: { from: 90, to: 93, fps: 10.0, loop: true }
+  Sit_Tilt_2: { from: 100, to: 105, fps: 10.0, loop: true }
+  Idle_Tilt_1: { from: 110, to: 113, fps: 10.0, loop: true }
+  Idle_Tilt_2: { from: 120, to: 127, fps: 10.0, loop: true }
+  Sit_Lift_1: { from: 130, to: 133, fps: 10.0, loop: false }
+  Sit_Lift_2: { from: 140, to: 145, fps: 10.0, loop: false }
+  Idle_Lift_1: { from: 150, to: 153, fps: 10.0, loop: false }
+  Idle_Lift_2: { from: 160, to: 167, fps: 10.0, loop: false }
+  Idle_Yes: { from: 170, to: 177, fps: 10.0, loop: true }
+  Sit_Yes: { from: 180, to: 187, fps: 10.0, loop: true }
+  Idle_No: { from: 190, to: 197, fps: 10.0, loop: true }
+  Sit_No: { from: 200, to: 207, fps: 10.0, loop: true }
+  Dance: { from: 210, to: 217, fps: 10.0, loop: true }
+  Stand_Up: { from: 220, to: 223, fps: 10.0, loop: false }
+  SIt_Down: { from: 230, to: 233, fps: 10.0, loop: false }
+  Jump_1: { frames: [240, 241, 242, 243, 250, 260, 261, 262, 263, 270, 271, 272, 273, 274], fps: 10.0, loop: false }
+  Start: { from: 240, to: 243, fps: 10.0, loop: false }
+  Jump: { from: 250, to: 250, fps: 10.0, loop: false }
+  Fall: { from: 260, to: 263, fps: 10.0, loop: false }
+  Stop: { from: 270, to: 274, fps: 10.0, loop: false }
+  Jump_2: { frames: [280, 281, 282, 283, 290, 300, 301, 310, 311, 312, 313, 314], fps: 10.0, loop: false }
+  Prepare: { from: 280, to: 283, fps: 10.0, loop: false }
+  Jump_2: { from: 290, to: 290, fps: 10.0, loop: false }
+  Brake: { from: 300, to: 301, fps: 10.0, loop: false }
+  Prepare_2: { from: 310, to: 314, fps: 10.0, loop: false }
+  FToT: { from: 320, to: 325, fps: 10.0, loop: false }
+  TToF: { from: 330, to: 335, fps: 10.0, loop: false }
+  TTOF_2: { from: 340, to: 343, fps: 10.0, loop: false }
+  Idle_two_1: { from: 350, to: 353, fps: 10.0, loop: true }
+  W_two: { from: 360, to: 363, fps: 10.0, loop: true }
+  Run_1: { from: 370, to: 375, fps: 10.0, loop: true }
+  Run_2: { from: 380, to: 385, fps: 10.0, loop: true }
+  Run_3: { from: 390, to: 393, fps: 10.0, loop: true }
+  Run_4: { from: 400, to: 404, fps: 10.0, loop: true }
+  Run_4_2: { from: 410, to: 411, fps: 10.0, loop: true }
+  Rest_1: { from: 420, to: 423, fps: 10.0, loop: true }
+  Rest_2: { from: 430, to: 433, fps: 10.0, loop: true }
+  Rset_3: { from: 440, to: 443, fps: 10.0, loop: true }
+  Rest_4: { from: 450, to: 457, fps: 10.0, loop: true }
+  Dream: { from: 460, to: 467, fps: 10.0, loop: true }
+  Sneak_up_Idle: { from: 470, to: 473, fps: 10.0, loop: true }
+  SU_move: { from: 480, to: 483, fps: 10.0, loop: true }
+  Stop_1: { from: 490, to: 493, fps: 10.0, loop: false }
+  Stop_2: { from: 500, to: 503, fps: 10.0, loop: false }
+  Stop_3: { from: 510, to: 513, fps: 10.0, loop: false }
+  Aggress: { from: 520, to: 527, fps: 10.0, loop: true }
+  Idle_Eat: { from: 530, to: 533, fps: 10.0, loop: true }
+  Idle_Eat_2: { from: 540, to: 543, fps: 10.0, loop: true }
+  Sit_Eat: { from: 550, to: 553, fps: 10.0, loop: true }
+  Dmg_1: { from: 560, to: 561, fps: 10.0, loop: false }
+  Dmg_2: { from: 570, to: 571, fps: 10.0, loop: false }
+  Dmg_3: { from: 580, to: 581, fps: 10.0, loop: false }
+  Dmg_4: { from: 590, to: 591, fps: 10.0, loop: false }
+  Dmg_5: { from: 600, to: 601, fps: 10.0, loop: false }
+  Die_1: { from: 610, to: 615, fps: 10.0, loop: false }
+  Die_2: { from: 620, to: 625, fps: 10.0, loop: false }
+  Die_3: { from: 630, to: 633, fps: 10.0, loop: false }
+  Die_4: { from: 640, to: 643, fps: 10.0, loop: false }
+  Die_5: { from: 650, to: 657, fps: 10.0, loop: false }
+  Die_6: { from: 660, to: 667, fps: 10.0, loop: false }
+  Die_End_1: { from: 670, to: 673, fps: 10.0, loop: false }
+  Die_End_2: { from: 680, to: 683, fps: 10.0, loop: false }
+  Spawn_1: { from: 690, to: 697, fps: 10.0, loop: false }
+  Spawn_2: { from: 700, to: 709, fps: 10.0, loop: false }
+  Attack_1: { from: 710, to: 713, fps: 10.0, loop: false }
+  Attack_2: { from: 720, to: 723, fps: 10.0, loop: false }
+  Attack_3: { from: 730, to: 733, fps: 10.0, loop: false }
+  Attack_4: { from: 740, to: 743, fps: 10.0, loop: false }
+  Dig_1: { from: 750, to: 753, fps: 10.0, loop: false }
+  Dig_2: { from: 760, to: 763, fps: 10.0, loop: false }
+  Dig_3: { from: 770, to: 775, fps: 10.0, loop: false }
+  Pooping: { from: 780, to: 783, fps: 10.0, loop: false }
+  Pushes: { from: 790, to: 797, fps: 10.0, loop: false }
+  Pull_Back: { from: 800, to: 807, fps: 10.0, loop: false }
+  W_Back: { from: 810, to: 817, fps: 10.0, loop: true }
+  Climb_1: { from: 820, to: 827, fps: 10.0, loop: true }
+  Climb_2: { from: 830, to: 837, fps: 10.0, loop: true }
+  Climb_3: { from: 840, to: 843, fps: 10.0, loop: true }
+  Climb_Jump_1: { from: 850, to: 855, fps: 10.0, loop: false }
+  Climb_Jump_2: { from: 860, to: 865, fps: 10.0, loop: false }
+  Scratching_Start: { from: 870, to: 874, fps: 10.0, loop: false }
+  Scratching_End: { from: 880, to: 884, fps: 10.0, loop: false }
+  Scratching_1: { from: 890, to: 894, fps: 10.0, loop: true }
+  Scratchng_2_85: { from: 900, to: 907, fps: 10.0, loop: true }
+  Frame: { from: 910, to: 910, fps: 10.0, loop: false }
+aliases:
+  idle: Idle_1
+  walk: W_1
+  run: Run_1
+  sleep: Dream
+  sit: Sit_1
+  lie: Rest_1
+  stretch: Idle_Lift_1
+  lick: Scratching_1
+  happy: Dance
+  excited: Dance
+  angry: Aggress
+  scared: Dmg_1
+  bored: Idle_2
+  curious: Idle_Tilt_1
+  look: Idle_Tilt_1
+  watch: Sit_1
+  pounce: Attack_1
+  nudge: Pushes
+  fall: Fall

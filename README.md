@@ -115,6 +115,34 @@ python run.py
 That's it. With no art and no LLM configured it runs the placeholder cat with
 rule-based behaviour. To give it a real brain, point it at an LLM (below).
 
+### Running multiple cats 🐱🐱🐱
+
+The project ships configs for **three cats** — one per sprite colour (Ginger,
+Grey, Grey-White). Each cat has its own memory DB and personality so they
+develop independently.
+
+**Just double-click `start_mochis.bat`** — it launches all three as
+detached background processes. They survive closing the terminal, and you can
+use the same file after a reboot.
+
+| Cat | Config | Sprite |
+|-----|--------|--------|
+| 🟠 Ginger | `config_ginger.toml` | `Cat_Ginger.png` |
+| ⬛ Grey | `config_grey.toml` | `Cat_Grey.png` |
+| 🐱 Grey-White | `config_grey_white.toml` | `Cat_Grey_White.png` |
+
+To stop all three at once, double-click **`stop_mochis.bat`**.
+
+Under the hood, each cat is launched via a `.vbs` script that sets the
+`DESKPET_MANIFEST` env var (to pick the sprite colour) and the `--config`
+flag (to pick the config file). You can also launch cats individually:
+
+```bat
+cscript //nologo start_ginger.vbs
+cscript //nologo start_grey.vbs
+cscript //nologo start_grey_white.vbs
+```
+
 ---
 
 ## Choosing a brain (LLM provider)

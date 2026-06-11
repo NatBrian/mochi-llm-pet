@@ -1,0 +1,43 @@
+# Mochi — Grey & White cat config
+[llm]
+provider    = "ollama"
+model       = "gemma4:e2b"
+base_url    = ""
+api_key     = ""
+temperature = 0.7
+timeout_s   = 90
+think       = false
+structured  = true
+
+[vision]
+enabled  = true
+mode     = "monitor"
+max_edge = 1024
+format   = "png"
+
+[memory]
+db_path     = "deskpet_grey_white.db"
+top_k       = 5
+embeddings  = false
+embed_model = "nomic-embed-text"
+max_rows    = 5000
+
+[triggers]
+heartbeat_s      = 20
+min_interval_s   = 4
+idle_threshold_s = 120
+
+[perception]
+fast_ms   = 200
+medium_ms = 1000
+slow_ms   = 5000
+caret     = false
+share_titles = true
+
+[persona]
+name = "grey_white"
+
+[render]
+fps        = 60
+scale      = 3
+assets_dir = "assets"

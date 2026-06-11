@@ -29,8 +29,11 @@ def _has_real_assets(assets_dir: Path, mani: "manifest_mod.Manifest | None") -> 
 
 def build(assets_dir: str | Path, color: str = "#e0a060") -> dict[str, AnimationClip]:
     """Return clips from assets if present, else the procedural placeholder."""
+    import os
+
     assets_dir = Path(assets_dir)
-    mani = manifest_mod.load(assets_dir / "anim_manifest.yaml")
+    manifest_name = os.environ.get("DESKPET_MANIFEST", "anim_manifest.yaml")
+    mani = manifest_mod.load(assets_dir / manifest_name)
 
     if _has_real_assets(assets_dir, mani):
         try:

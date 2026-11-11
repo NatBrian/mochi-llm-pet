@@ -1,0 +1,83 @@
+{
+  "scenario_id": "snooze",
+  "description": "Snoozing invalidates the previous occurrence and creates one new delivery.",
+  "initial_time": "2026-01-01T17:00:00+00:00",
+  "events": [
+    {
+      "seq": 1,
+      "at_s": 0,
+      "kind": "command",
+      "payload": {
+        "command_id": "create",
+        "kind": "create",
+        "task_id": "milk",
+        "expected_version": 0,
+        "payload": {
+          "draft": {
+            "content": "Buy milk",
+            "mode": "hard",
+            "timezone": "UTC",
+            "earliest_at": "2026-01-01T17:00:10+00:00",
+            "latest_first_delivery_at": "2026-01-01T17:00:10+00:00"
+          }
+        }
+      }
+    },
+    {
+      "seq": 2,
+      "at_s": 0,
+      "kind": "command",
+      "payload": {
+        "command_id": "confirm",
+        "kind": "confirm",
+        "task_id": "milk",
+        "expected_version": 1,
+        "payload": {}
+      }
+    },
+    {
+      "seq": 3,
+      "at_s": 10,
+      "kind": "advance",
+      "payload": {}
+    },
+    {
+      "seq": 4,
+      "at_s": 11,
+      "kind": "command",
+      "payload": {
+        "command_id": "snooze",
+        "kind": "snooze",
+        "task_id": "milk",
+        "expected_version": 2,
+        "payload": {
+          "seconds": 10
+        }
+      }
+    },
+    {
+      "seq": 5,
+      "at_s": 20,
+      "kind": "advance",
+      "payload": {}
+    },
+    {
+      "seq": 6,
+      "at_s": 21,
+      "kind": "advance",
+      "payload": {}
+    }
+  ],
+  "expected_outcomes": {
+    "tasks": {
+      "milk": {
+        "status": "registered",
+        "version": 3,
+        "displayed": true,
+        "occurrence": 2
+      }
+    },
+    "displays": 2,
+    "errors": []
+  }
+}

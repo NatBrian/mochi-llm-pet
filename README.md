@@ -24,6 +24,16 @@ unreachable. Nothing hard-crashes.
 
 ---
 
+## M0 collaboration workbench
+
+The new work-assistant collaboration baseline has an independent, offline entry
+point. Run `uv run python -m deskpet.m0 gui --profile scenario` for the real Qt
+workbench, or `uv run python -m deskpet.m0 replay --suite m0` for deterministic
+headless scenarios. Both use scripted decisions and an in-memory task service.
+Start with [M0 setup and acceptance](docs/m0.md), [public contracts](docs/contracts/README.md),
+[architecture decisions](docs/adr/README.md), and the [B/C/D handoffs](docs/handoff/README.md).
+Windows agents can run [the acceptance script](scripts/smoke_windows.ps1).
+
 ## What the cat does
 
 - **Sees your desktop** — a whole-screen screenshot **and** a distilled text scene

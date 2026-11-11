@@ -16,7 +16,9 @@ dependencies = [
     "tenacity==9.0.0",
     "PyYAML==6.0.2",
     "psutil==6.0.0",
-    "PyQt6==6.7.1 ; sys_platform == 'win32'",
+    "PyQt6==6.7.1 ; sys_platform == 'win32' or sys_platform == 'darwin'",
+    "pyobjc-framework-Cocoa>=10,<12 ; sys_platform == 'darwin'",
+    "pyobjc-framework-Quartz>=10,<12 ; sys_platform == 'darwin'",
     "pywin32==306 ; sys_platform == 'win32'",
     "uiautomation==2.0.20 ; sys_platform == 'win32'",
 ]

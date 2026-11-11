@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-01-01T17:00:00Z",
+  "tasks": [
+    {
+      "task_id": "recover-pending",
+      "version": 2,
+      "draft": {
+        "content": "恢复后的提醒",
+        "mode": "hard",
+        "timezone": "UTC",
+        "earliest_at": "2026-01-01T17:00:00Z",
+        "latest_first_delivery_at": "2026-01-01T17:00:00Z"
+      },
+      "status": "registered",
+      "occurrence": 1,
+      "confirmed_at": "2026-01-01T16:59:00Z",
+      "displayed_at": null
+    },
+    {
+      "task_id": "recover-cancelled",
+      "version": 3,
+      "draft": {
+        "content": "恢复后的提醒",
+        "mode": "hard",
+        "timezone": "UTC",
+        "earliest_at": "2026-01-01T17:00:00Z",
+        "latest_first_delivery_at": "2026-01-01T17:00:00Z"
+      },
+      "status": "cancelled",
+      "occurrence": 1,
+      "confirmed_at": "2026-01-01T16:59:00Z",
+      "displayed_at": null
+    },
+    {
+      "task_id": "recover-snoozed",
+      "version": 3,
+      "draft": {
+        "content": "恢复后的提醒",
+        "mode": "hard",
+        "timezone": "UTC",
+        "earliest_at": "2026-01-01T17:01:00Z",
+        "latest_first_delivery_at": "2026-01-01T17:01:00Z"
+      },
+      "status": "registered",
+      "occurrence": 2,
+      "confirmed_at": "2026-01-01T16:59:00Z",
+      "displayed_at": null
+    }
+  ],
+  "pending_deliveries": [
+    {
+      "delivery_id": "persisted-delivery-1",
+      "task_id": "recover-pending",
+      "task_version": 2,
+      "occurrence": 1,
+      "content": "恢复后的提醒",
+      "requested_at": "2026-01-01T17:00:00Z",
+      "expires_at": "2026-01-01T17:00:30Z",
+      "reason": "hard_due"
+    }
+  ],
+  "job_examples": [
+    {
+      "task_id": "recover-pending",
+      "task_version": 2,
+      "run_at": "2026-01-01T17:00:00+00:00",
+      "kind": "first_delivery"
+    },
+    {
+      "task_id": "recover-cancelled",
+      "task_version": 2,
+      "run_at": "2026-01-01T17:00:00+00:00",
+      "kind": "obsolete_job"
+    },
+    {
+      "task_id": "recover-snoozed",
+      "task_version": 2,
+      "run_at": "2026-01-01T17:00:00+00:00",
+      "kind": "obsolete_job"
+    },
+    {
+      "task_id": "recover-snoozed",
+      "task_version": 3,
+      "run_at": "2026-01-01T17:01:00+00:00",
+      "kind": "first_delivery"
+    }
+  ],
+  "expected_after_restart": {
+    "recover-pending": {
+      "retry_delivery_id": "persisted-delivery-1",
+      "new_occurrence": false,
+      "displayed_requires_receipt": true
+    },
+    "recover-cancelled": {
+      "delivery_requests": 0,
+      "obsolete_job_rejected": true
+    },
+    "recover-snoozed": {
+      "current_version": 3,
+      "obsolete_job_rejected": true,
+      "no_delivery_before": "2026-01-01T17:01:00Z"
+    },
+    "verification": "pending_real_SQLite_process_restart",
+    "m0_persistence": false
+  }
+}

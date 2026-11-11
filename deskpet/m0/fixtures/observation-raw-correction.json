@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "scenario_id": "observation-raw-correction",
+  "description": "Raw sampling, estimation and explicit user correction share the public observation pipeline.",
+  "initial_time": "2026-01-01T17:00:00Z",
+  "events": [
+    {
+      "seq": 1,
+      "at_s": 0,
+      "kind": "raw_sample",
+      "payload": {
+        "application": "Editor",
+        "idle_s": 15,
+        "input_active": false,
+        "ttl_s": 30
+      }
+    },
+    {
+      "seq": 2,
+      "at_s": 1,
+      "kind": "correction",
+      "payload": {
+        "correction_id": "user-working",
+        "state": "working",
+        "reason": "I am reading",
+        "created_at": "2026-01-01T17:00:01Z",
+        "valid_until": "2026-01-01T17:00:10Z"
+      }
+    },
+    {
+      "seq": 3,
+      "at_s": 2,
+      "kind": "raw_sample",
+      "payload": {
+        "idle_s": 130,
+        "ttl_s": 30
+      }
+    },
+    {
+      "seq": 4,
+      "at_s": 3,
+      "kind": "clear_correction",
+      "payload": {}
+    },
+    {
+      "seq": 5,
+      "at_s": 4,
+      "kind": "raw_sample",
+      "payload": {
+        "capabilities": {},
+        "ttl_s": 30
+      }
+    }
+  ],
+  "expected_outcomes": {
+    "displays": 0,
+    "observation_states": [
+      "available",
+      "working",
+      "working",
+      "away",
+      "unknown"
+    ],
+    "observation": {
+      "state": "unknown",
+      "estimated_state": "unknown",
+      "raw_status": "fresh",
+      "correction_status": "cleared"
+    },
+    "events": {
+      "observation.correction.applied": 1,
+      "observation.correction.cleared": 1
+    }
+  }
+}

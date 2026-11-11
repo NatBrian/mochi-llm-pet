@@ -1,0 +1,20 @@
+{
+  "sample_id": "scripted-sample-2",
+  "sampler_id": "ScriptedSamplingSource",
+  "sampled_at": "2026-01-01T17:00:00Z",
+  "valid_until": "2026-01-01T17:00:30Z",
+  "source": "scripted",
+  "capabilities": {
+    "foreground": true,
+    "idle": true,
+    "input_activity": false,
+    "cursor": false,
+    "windows": false
+  },
+  "application": "Editor",
+  "idle_s": 15.0,
+  "input_active": null,
+  "cursor_position": null,
+  "window_count": null,
+  "errors": []
+}

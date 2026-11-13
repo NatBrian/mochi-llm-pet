@@ -1,0 +1,683 @@
+{
+  "schema_version": 1,
+  "models": {
+    "Observation": [
+      {
+        "raw": {
+          "sample_id": "scripted-sample-2",
+          "sampler_id": "ScriptedSamplingSource",
+          "sampled_at": "2026-01-01T17:00:00Z",
+          "valid_until": "2026-01-01T17:00:30Z",
+          "source": "scripted",
+          "capabilities": {
+            "foreground": true,
+            "idle": true,
+            "input_activity": false,
+            "cursor": false,
+            "windows": false
+          },
+          "application": "Editor",
+          "idle_s": 15.0,
+          "input_active": null,
+          "cursor_position": null,
+          "window_count": null,
+          "errors": []
+        },
+        "correction": null,
+        "context_revision": 1,
+        "observed_at": "2026-01-01T17:00:00Z",
+        "estimate": {
+          "estimator_id": "RuleStateEstimator",
+          "based_on_sample_id": "scripted-sample-2",
+          "evidence_details": [
+            {
+              "ref": "idle_seconds",
+              "signal": "idle_s",
+              "value": 15.0,
+              "sampled_at": "2026-01-01T17:00:00Z",
+              "valid_until": "2026-01-01T17:00:30Z",
+              "source": "scripted"
+            },
+            {
+              "ref": "external_foreground",
+              "signal": "application",
+              "value": "Editor",
+              "sampled_at": "2026-01-01T17:00:00Z",
+              "valid_until": "2026-01-01T17:00:30Z",
+              "source": "scripted"
+            }
+          ],
+          "state": "available",
+          "evidence": [
+            "idle_seconds",
+            "external_foreground"
+          ],
+          "source": "rule",
+          "valid_until": "2026-01-01T17:00:30Z"
+        },
+        "capabilities": {
+          "foreground": true,
+          "idle": true,
+          "input_activity": false,
+          "cursor": false,
+          "windows": false
+        },
+        "application": "Editor",
+        "idle_s": 15.0,
+        "source": "scripted"
+      },
+      {
+        "raw": {
+          "sample_id": "scripted-sample-2",
+          "sampler_id": "ScriptedSamplingSource",
+          "sampled_at": "2026-01-01T17:00:00Z",
+          "valid_until": "2026-01-01T17:00:30Z",
+          "source": "scripted",
+          "capabilities": {
+            "foreground": true,
+            "idle": true,
+            "input_activity": false,
+            "cursor": false,
+            "windows": false
+          },
+          "application": "Editor",
+          "idle_s": 15.0,
+          "input_active": null,
+          "cursor_position": null,
+          "window_count": null,
+          "errors": []
+        },
+        "correction": {
+          "origin": "user",
+          "correction_id": "user-correction-example",
+          "state": "working",
+          "reason": "正在阅读，不适合打断",
+          "created_at": "2026-01-01T17:00:00Z",
+          "valid_until": "2026-01-01T17:00:10Z"
+        },
+        "context_revision": 2,
+        "observed_at": "2026-01-01T17:00:00Z",
+        "estimate": {
+          "estimator_id": "user_correction",
+          "based_on_sample_id": "scripted-sample-2",
+          "evidence_details": [
+            {
+              "ref": "user_correction",
+              "signal": "user_state",
+              "value": "working",
+              "sampled_at": "2026-01-01T17:00:00Z",
+              "valid_until": "2026-01-01T17:00:10Z",
+              "source": "user"
+            }
+          ],
+          "state": "working",
+          "evidence": [
+            "user_correction"
+          ],
+          "source": "user",
+          "valid_until": "2026-01-01T17:00:10Z"
+        },
+        "capabilities": {
+          "foreground": true,
+          "idle": true,
+          "input_activity": false,
+          "cursor": false,
+          "windows": false
+        },
+        "application": "Editor",
+        "idle_s": 15.0,
+        "source": "scripted"
+      }
+    ],
+    "UserStateEstimate": [
+      {
+        "state": "working",
+        "evidence": [
+          "input_active"
+        ],
+        "source": "scripted",
+        "valid_until": null
+      }
+    ],
+    "TaskDraft": [
+      {
+        "content": "买牛奶",
+        "mode": "soft",
+        "timezone": "UTC",
+        "earliest_at": "2026-01-01T17:00:00Z",
+        "latest_first_delivery_at": "2026-01-01T17:20:00Z"
+      }
+    ],
+    "TaskCommand": [
+      {
+        "command_id": "cmd-1",
+        "kind": "create",
+        "task_id": "milk",
+        "expected_version": 0,
+        "payload": {
+          "draft": {
+            "content": "买牛奶",
+            "mode": "soft",
+            "timezone": "UTC",
+            "earliest_at": "2026-01-01T17:00:00Z",
+            "latest_first_delivery_at": "2026-01-01T17:20:00Z"
+          }
+        }
+      }
+    ],
+    "TaskView": [
+      {
+        "task_id": "milk",
+        "version": 2,
+        "draft": {
+          "content": "买牛奶",
+          "mode": "soft",
+          "timezone": "UTC",
+          "earliest_at": "2026-01-01T17:00:00Z",
+          "latest_first_delivery_at": "2026-01-01T17:20:00Z"
+        },
+        "status": "registered",
+        "occurrence": 1,
+        "confirmed_at": "2026-01-01T17:00:00Z",
+        "displayed_at": null
+      }
+    ],
+    "CommandResult": [
+      {
+        "command_id": "cmd-1",
+        "status": "applied",
+        "actual_version": 2,
+        "error_code": null,
+        "view": {
+          "task_id": "milk",
+          "version": 2,
+          "draft": {
+            "content": "买牛奶",
+            "mode": "soft",
+            "timezone": "UTC",
+            "earliest_at": "2026-01-01T17:00:00Z",
+            "latest_first_delivery_at": "2026-01-01T17:20:00Z"
+          },
+          "status": "registered",
+          "occurrence": 1,
+          "confirmed_at": "2026-01-01T17:00:00Z",
+          "displayed_at": null
+        },
+        "message": ""
+      }
+    ],
+    "DecisionEnvelope": [
+      {
+        "request_id": "req-1",
+        "task_id": "milk",
+        "task_version": 2,
+        "context_revision": 1,
+        "created_at": "2026-01-01T17:00:00Z",
+        "expires_at": "2026-01-01T17:05:00Z"
+      }
+    ],
+    "ToolCall": [
+      {
+        "call_id": "call-1",
+        "tool_name": "schedule_recheck",
+        "args": {
+          "run_at": "2026-01-01T17:00:30+00:00"
+        },
+        "envelope": {
+          "request_id": "req-1",
+          "task_id": "milk",
+          "task_version": 2,
+          "context_revision": 1,
+          "created_at": "2026-01-01T17:00:00Z",
+          "expires_at": "2026-01-01T17:05:00Z"
+        },
+        "idempotency_key": "recheck-1"
+      }
+    ],
+    "ProposedPlan": [
+      {
+        "envelope": {
+          "request_id": "req-1",
+          "task_id": "milk",
+          "task_version": 2,
+          "context_revision": 1,
+          "created_at": "2026-01-01T17:00:00Z",
+          "expires_at": "2026-01-01T17:05:00Z"
+        },
+        "calls": [
+          {
+            "call_id": "call-1",
+            "tool_name": "schedule_recheck",
+            "args": {
+              "run_at": "2026-01-01T17:00:30+00:00"
+            },
+            "envelope": {
+              "request_id": "req-1",
+              "task_id": "milk",
+              "task_version": 2,
+              "context_revision": 1,
+              "created_at": "2026-01-01T17:00:00Z",
+              "expires_at": "2026-01-01T17:05:00Z"
+            },
+            "idempotency_key": "recheck-1"
+          }
+        ]
+      }
+    ],
+    "ToolResult": [
+      {
+        "call_id": "call-1",
+        "status": "succeeded",
+        "error_code": null,
+        "receipt_id": null,
+        "state_version": 2,
+        "evidence": {}
+      }
+    ],
+    "DisplayCommand": [
+      {
+        "delivery_id": "milk:v2:o1",
+        "task_id": "milk",
+        "task_version": 2,
+        "occurrence": 1,
+        "content": "买牛奶",
+        "requested_at": "2026-01-01T17:00:00Z",
+        "expires_at": "2026-01-01T17:20:00Z",
+        "reason": "opportunity"
+      }
+    ],
+    "DisplayReceipt": [
+      {
+        "delivery_id": "milk:v2:o1",
+        "task_id": "milk",
+        "task_version": 2,
+        "rendered_at": "2026-01-01T17:00:00Z",
+        "outcome": "displayed",
+        "source": "simulated",
+        "error_code": null
+      }
+    ],
+    "UiSpec": [
+      {
+        "schema_version": 1,
+        "surface_id": "milk-card",
+        "surface_revision": 1,
+        "task_id": "milk",
+        "task_version": 2,
+        "components": [
+          {
+            "component_id": "title",
+            "type": "text",
+            "label": "",
+            "action_id": null,
+            "options": [],
+            "data_key": "content"
+          },
+          {
+            "component_id": "done",
+            "type": "button",
+            "label": "已完成",
+            "action_id": "reminder.done",
+            "options": [],
+            "data_key": null
+          }
+        ],
+        "data": {
+          "content": "买牛奶"
+        }
+      }
+    ],
+    "UiAction": [
+      {
+        "event_id": "click-1",
+        "action_id": "reminder.done",
+        "task_id": "milk",
+        "expected_task_version": 2,
+        "surface_revision": 1,
+        "payload": {}
+      }
+    ],
+    "WorkSession": [
+      {
+        "session_id": "work-1",
+        "version": 1,
+        "task_id": null,
+        "goal": "完成章节",
+        "state": "focusing",
+        "remaining_s": 1500.0,
+        "phase_due_at": "2026-01-01T17:25:00Z",
+        "confirmed_outcomes": [],
+        "next_steps": []
+      }
+    ],
+    "SessionCommand": [
+      {
+        "command_id": "session-start-1",
+        "kind": "start",
+        "session_id": "work-1",
+        "expected_version": 0,
+        "payload": {
+          "goal": "完成章节",
+          "duration_s": 1500
+        }
+      }
+    ],
+    "TraceEvent": [
+      {
+        "schema_version": 1,
+        "seq": 1,
+        "ts": "2026-01-01T17:00:00Z",
+        "monotonic_s": 0.0,
+        "run_id": "example",
+        "scenario_id": "milk",
+        "kind": "task.confirmed",
+        "source": "reference",
+        "simulated": true,
+        "clock": "virtual",
+        "task_id": "milk",
+        "task_version": 2,
+        "request_id": null,
+        "call_id": null,
+        "delivery_id": null,
+        "session_id": null,
+        "payload": {}
+      }
+    ],
+    "Scenario": [
+      {
+        "schema_version": 1,
+        "scenario_id": "empty-contract-example",
+        "description": "",
+        "initial_time": "2026-01-01T17:00:00Z",
+        "events": [
+          {
+            "seq": 1,
+            "at_s": 0.0,
+            "kind": "advance",
+            "payload": {}
+          }
+        ],
+        "expected_outcomes": {}
+      }
+    ],
+    "RecoveryFixture": [
+      {
+        "schema_version": 1,
+        "captured_at": "2026-01-01T17:00:00Z",
+        "tasks": [
+          {
+            "task_id": "recover-pending",
+            "version": 2,
+            "draft": {
+              "content": "恢复后的提醒",
+              "mode": "hard",
+              "timezone": "UTC",
+              "earliest_at": "2026-01-01T17:00:00Z",
+              "latest_first_delivery_at": "2026-01-01T17:00:00Z"
+            },
+            "status": "registered",
+            "occurrence": 1,
+            "confirmed_at": "2026-01-01T16:59:00Z",
+            "displayed_at": null
+          },
+          {
+            "task_id": "recover-cancelled",
+            "version": 3,
+            "draft": {
+              "content": "恢复后的提醒",
+              "mode": "hard",
+              "timezone": "UTC",
+              "earliest_at": "2026-01-01T17:00:00Z",
+              "latest_first_delivery_at": "2026-01-01T17:00:00Z"
+            },
+            "status": "cancelled",
+            "occurrence": 1,
+            "confirmed_at": "2026-01-01T16:59:00Z",
+            "displayed_at": null
+          },
+          {
+            "task_id": "recover-snoozed",
+            "version": 3,
+            "draft": {
+              "content": "恢复后的提醒",
+              "mode": "hard",
+              "timezone": "UTC",
+              "earliest_at": "2026-01-01T17:01:00Z",
+              "latest_first_delivery_at": "2026-01-01T17:01:00Z"
+            },
+            "status": "registered",
+            "occurrence": 2,
+            "confirmed_at": "2026-01-01T16:59:00Z",
+            "displayed_at": null
+          }
+        ],
+        "pending_deliveries": [
+          {
+            "delivery_id": "persisted-delivery-1",
+            "task_id": "recover-pending",
+            "task_version": 2,
+            "occurrence": 1,
+            "content": "恢复后的提醒",
+            "requested_at": "2026-01-01T17:00:00Z",
+            "expires_at": "2026-01-01T17:00:30Z",
+            "reason": "hard_due"
+          }
+        ],
+        "job_examples": [
+          {
+            "task_id": "recover-pending",
+            "task_version": 2,
+            "run_at": "2026-01-01T17:00:00+00:00",
+            "kind": "first_delivery"
+          },
+          {
+            "task_id": "recover-cancelled",
+            "task_version": 2,
+            "run_at": "2026-01-01T17:00:00+00:00",
+            "kind": "obsolete_job"
+          },
+          {
+            "task_id": "recover-snoozed",
+            "task_version": 2,
+            "run_at": "2026-01-01T17:00:00+00:00",
+            "kind": "obsolete_job"
+          },
+          {
+            "task_id": "recover-snoozed",
+            "task_version": 3,
+            "run_at": "2026-01-01T17:01:00+00:00",
+            "kind": "first_delivery"
+          }
+        ],
+        "expected_after_restart": {
+          "recover-pending": {
+            "retry_delivery_id": "persisted-delivery-1",
+            "new_occurrence": false,
+            "displayed_requires_receipt": true
+          },
+          "recover-cancelled": {
+            "delivery_requests": 0,
+            "obsolete_job_rejected": true
+          },
+          "recover-snoozed": {
+            "current_version": 3,
+            "obsolete_job_rejected": true,
+            "no_delivery_before": "2026-01-01T17:01:00Z"
+          },
+          "verification": "pending_real_SQLite_process_restart",
+          "m0_persistence": false
+        }
+      }
+    ],
+    "RawSignals": [
+      {
+        "sample_id": "scripted-sample-2",
+        "sampler_id": "ScriptedSamplingSource",
+        "sampled_at": "2026-01-01T17:00:00Z",
+        "valid_until": "2026-01-01T17:00:30Z",
+        "source": "scripted",
+        "capabilities": {
+          "foreground": true,
+          "idle": true,
+          "input_activity": false,
+          "cursor": false,
+          "windows": false
+        },
+        "application": "Editor",
+        "idle_s": 15.0,
+        "input_active": null,
+        "cursor_position": null,
+        "window_count": null,
+        "errors": []
+      }
+    ],
+    "StateEvidence": [
+      {
+        "ref": "idle_seconds",
+        "signal": "idle_s",
+        "value": 15.0,
+        "sampled_at": "2026-01-01T17:00:00Z",
+        "valid_until": "2026-01-01T17:00:30Z",
+        "source": "scripted"
+      }
+    ],
+    "UserCorrection": [
+      {
+        "origin": "user",
+        "correction_id": "user-correction-example",
+        "state": "working",
+        "reason": "正在阅读，不适合打断",
+        "created_at": "2026-01-01T17:00:00Z",
+        "valid_until": "2026-01-01T17:00:10Z"
+      }
+    ],
+    "ObservationFrame": [
+      {
+        "observation": {
+          "raw": {
+            "sample_id": "scripted-sample-2",
+            "sampler_id": "ScriptedSamplingSource",
+            "sampled_at": "2026-01-01T17:00:00Z",
+            "valid_until": "2026-01-01T17:00:30Z",
+            "source": "scripted",
+            "capabilities": {
+              "foreground": true,
+              "idle": true,
+              "input_activity": false,
+              "cursor": false,
+              "windows": false
+            },
+            "application": "Editor",
+            "idle_s": 15.0,
+            "input_active": null,
+            "cursor_position": null,
+            "window_count": null,
+            "errors": []
+          },
+          "correction": {
+            "origin": "user",
+            "correction_id": "user-correction-example",
+            "state": "working",
+            "reason": "正在阅读，不适合打断",
+            "created_at": "2026-01-01T17:00:00Z",
+            "valid_until": "2026-01-01T17:00:10Z"
+          },
+          "context_revision": 2,
+          "observed_at": "2026-01-01T17:00:00Z",
+          "estimate": {
+            "estimator_id": "user_correction",
+            "based_on_sample_id": "scripted-sample-2",
+            "evidence_details": [
+              {
+                "ref": "user_correction",
+                "signal": "user_state",
+                "value": "working",
+                "sampled_at": "2026-01-01T17:00:00Z",
+                "valid_until": "2026-01-01T17:00:10Z",
+                "source": "user"
+              }
+            ],
+            "state": "working",
+            "evidence": [
+              "user_correction"
+            ],
+            "source": "user",
+            "valid_until": "2026-01-01T17:00:10Z"
+          },
+          "capabilities": {
+            "foreground": true,
+            "idle": true,
+            "input_activity": false,
+            "cursor": false,
+            "windows": false
+          },
+          "application": "Editor",
+          "idle_s": 15.0,
+          "source": "scripted"
+        },
+        "raw": {
+          "sample_id": "scripted-sample-2",
+          "sampler_id": "ScriptedSamplingSource",
+          "sampled_at": "2026-01-01T17:00:00Z",
+          "valid_until": "2026-01-01T17:00:30Z",
+          "source": "scripted",
+          "capabilities": {
+            "foreground": true,
+            "idle": true,
+            "input_activity": false,
+            "cursor": false,
+            "windows": false
+          },
+          "application": "Editor",
+          "idle_s": 15.0,
+          "input_active": null,
+          "cursor_position": null,
+          "window_count": null,
+          "errors": []
+        },
+        "raw_status": "fresh",
+        "estimated": {
+          "estimator_id": "RuleStateEstimator",
+          "based_on_sample_id": "scripted-sample-2",
+          "evidence_details": [
+            {
+              "ref": "idle_seconds",
+              "signal": "idle_s",
+              "value": 15.0,
+              "sampled_at": "2026-01-01T17:00:00Z",
+              "valid_until": "2026-01-01T17:00:30Z",
+              "source": "scripted"
+            },
+            {
+              "ref": "external_foreground",
+              "signal": "application",
+              "value": "Editor",
+              "sampled_at": "2026-01-01T17:00:00Z",
+              "valid_until": "2026-01-01T17:00:30Z",
+              "source": "scripted"
+            }
+          ],
+          "state": "available",
+          "evidence": [
+            "idle_seconds",
+            "external_foreground"
+          ],
+          "source": "rule",
+          "valid_until": "2026-01-01T17:00:30Z"
+        },
+        "correction": {
+          "origin": "user",
+          "correction_id": "user-correction-example",
+          "state": "working",
+          "reason": "正在阅读，不适合打断",
+          "created_at": "2026-01-01T17:00:00Z",
+          "valid_until": "2026-01-01T17:00:10Z"
+        },
+        "correction_status": "active",
+        "sampling_name": "ScriptedSamplingSource",
+        "estimator_name": "RuleStateEstimator",
+        "error": null
+      }
+    ]
+  }
+}

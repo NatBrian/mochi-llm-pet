@@ -1,0 +1,86 @@
+{
+  "scenario_id": "cancel-late",
+  "description": "An old in-flight tool result is rejected after cancellation; no card reappears.",
+  "initial_time": "2026-01-01T17:00:00+00:00",
+  "events": [
+    {
+      "seq": 1,
+      "at_s": 0,
+      "kind": "command",
+      "payload": {
+        "command_id": "create",
+        "kind": "create",
+        "task_id": "milk",
+        "expected_version": 0,
+        "payload": {
+          "draft": {
+            "content": "Buy milk",
+            "mode": "hard",
+            "timezone": "UTC",
+            "earliest_at": "2026-01-01T17:00:10+00:00",
+            "latest_first_delivery_at": "2026-01-01T17:00:10+00:00"
+          }
+        }
+      }
+    },
+    {
+      "seq": 2,
+      "at_s": 0,
+      "kind": "command",
+      "payload": {
+        "command_id": "confirm",
+        "kind": "confirm",
+        "task_id": "milk",
+        "expected_version": 1,
+        "payload": {}
+      }
+    },
+    {
+      "seq": 3,
+      "at_s": 9,
+      "kind": "command",
+      "payload": {
+        "command_id": "cancel",
+        "kind": "cancel",
+        "task_id": "milk",
+        "expected_version": 2,
+        "payload": {}
+      }
+    },
+    {
+      "seq": 4,
+      "at_s": 11,
+      "kind": "tool",
+      "payload": {
+        "call_id": "call-1",
+        "tool_name": "show_reminder",
+        "args": {},
+        "envelope": {
+          "request_id": "request-1",
+          "task_id": "milk",
+          "task_version": 2,
+          "context_revision": 1,
+          "created_at": "2026-01-01T17:00:00+00:00",
+          "expires_at": "2026-01-01T17:01:00+00:00"
+        },
+        "idempotency_key": "tool-1"
+      }
+    }
+  ],
+  "expected_outcomes": {
+    "tasks": {
+      "milk": {
+        "status": "cancelled",
+        "version": 3,
+        "displayed": false
+      }
+    },
+    "displays": 0,
+    "errors": [
+      "CANCELLED"
+    ],
+    "tool_statuses": [
+      "rejected"
+    ]
+  }
+}

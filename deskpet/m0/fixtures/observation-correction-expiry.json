@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "scenario_id": "observation-correction-expiry",
+  "description": "Raw sampling, estimation and explicit user correction share the public observation pipeline.",
+  "initial_time": "2026-01-01T17:00:00Z",
+  "events": [
+    {
+      "seq": 1,
+      "at_s": 0,
+      "kind": "raw_sample",
+      "payload": {
+        "application": "Browser",
+        "idle_s": 20,
+        "ttl_s": 30
+      }
+    },
+    {
+      "seq": 2,
+      "at_s": 1,
+      "kind": "correction",
+      "payload": {
+        "correction_id": "short-correction",
+        "state": "working",
+        "reason": "Still reading",
+        "created_at": "2026-01-01T17:00:01Z",
+        "valid_until": "2026-01-01T17:00:04Z"
+      }
+    },
+    {
+      "seq": 3,
+      "at_s": 5,
+      "kind": "advance",
+      "payload": {}
+    }
+  ],
+  "expected_outcomes": {
+    "displays": 0,
+    "observation_states": [
+      "available",
+      "working",
+      "available"
+    ],
+    "observation": {
+      "state": "available",
+      "estimated_state": "available",
+      "raw_status": "fresh",
+      "correction_status": "expired"
+    },
+    "events": {
+      "observation.correction.applied": 1,
+      "observation.correction.expired": 1
+    }
+  }
+}

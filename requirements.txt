@@ -10,7 +10,9 @@ psutil==6.0.0
 tomli==2.0.1 ; python_version < "3.11"
 
 # GUI + Windows perception (installed/active only on the Windows run box)
-PyQt6==6.7.1 ; sys_platform == "win32"
+PyQt6==6.7.1 ; sys_platform == "win32" or sys_platform == "darwin"
+pyobjc-framework-Cocoa>=10,<12 ; sys_platform == "darwin"
+pyobjc-framework-Quartz>=10,<12 ; sys_platform == "darwin"
 pywin32==306 ; sys_platform == "win32"
 uiautomation==2.0.20 ; sys_platform == "win32"
 

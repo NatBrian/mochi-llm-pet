@@ -1,0 +1,1725 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mochi M0 public contracts",
+  "x-contract-version": 1,
+  "$defs": {
+    "RawSignals": {
+      "additionalProperties": false,
+      "description": "Timestamped measurements, never a conclusion about the user's state.",
+      "properties": {
+        "sample_id": {
+          "title": "Sample Id",
+          "type": "string"
+        },
+        "sampler_id": {
+          "default": "unspecified",
+          "title": "Sampler Id",
+          "type": "string"
+        },
+        "sampled_at": {
+          "format": "date-time",
+          "title": "Sampled At",
+          "type": "string"
+        },
+        "valid_until": {
+          "format": "date-time",
+          "title": "Valid Until",
+          "type": "string"
+        },
+        "source": {
+          "default": "scripted",
+          "enum": [
+            "scripted",
+            "live"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "capabilities": {
+          "additionalProperties": {
+            "type": "boolean"
+          },
+          "title": "Capabilities",
+          "type": "object"
+        },
+        "application": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Application"
+        },
+        "idle_s": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Idle S"
+        },
+        "input_active": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input Active"
+        },
+        "cursor_position": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cursor Position"
+        },
+        "window_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Window Count"
+        },
+        "errors": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Errors",
+          "type": "array"
+        }
+      },
+      "required": [
+        "sample_id",
+        "sampled_at",
+        "valid_until"
+      ],
+      "title": "RawSignals",
+      "type": "object"
+    },
+    "StateEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        },
+        "signal": {
+          "title": "Signal",
+          "type": "string"
+        },
+        "value": {
+          "default": null,
+          "title": "Value"
+        },
+        "sampled_at": {
+          "format": "date-time",
+          "title": "Sampled At",
+          "type": "string"
+        },
+        "valid_until": {
+          "format": "date-time",
+          "title": "Valid Until",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ref",
+        "signal",
+        "sampled_at",
+        "valid_until",
+        "source"
+      ],
+      "title": "StateEvidence",
+      "type": "object"
+    },
+    "UserCorrection": {
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "default": "user",
+          "enum": [
+            "user",
+            "scripted",
+            "automation"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "correction_id": {
+          "title": "Correction Id",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "working",
+            "available",
+            "away",
+            "unknown"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "reason": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "valid_until": {
+          "format": "date-time",
+          "title": "Valid Until",
+          "type": "string"
+        }
+      },
+      "required": [
+        "correction_id",
+        "state",
+        "reason",
+        "created_at",
+        "valid_until"
+      ],
+      "title": "UserCorrection",
+      "type": "object"
+    },
+    "UserStateEstimate": {
+      "additionalProperties": false,
+      "properties": {
+        "estimator_id": {
+          "default": "unspecified",
+          "title": "Estimator Id",
+          "type": "string"
+        },
+        "based_on_sample_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Based On Sample Id"
+        },
+        "evidence_details": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/StateEvidence"
+          },
+          "title": "Evidence Details",
+          "type": "array"
+        },
+        "state": {
+          "default": "unknown",
+          "enum": [
+            "working",
+            "available",
+            "away",
+            "unknown"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "source": {
+          "default": "scripted",
+          "enum": [
+            "rule",
+            "scripted",
+            "user",
+            "model"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid Until"
+        }
+      },
+      "title": "UserStateEstimate",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "raw": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RawSignals"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "correction": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UserCorrection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "context_revision": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Context Revision",
+          "type": "integer"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "estimate": {
+          "$ref": "#/$defs/UserStateEstimate"
+        },
+        "capabilities": {
+          "additionalProperties": {
+            "type": "boolean"
+          },
+          "title": "Capabilities",
+          "type": "object"
+        },
+        "application": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Application"
+        },
+        "idle_s": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Idle S"
+        },
+        "source": {
+          "default": "scripted",
+          "enum": [
+            "scripted",
+            "live"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observed_at"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "ObservationFrame": {
+      "additionalProperties": false,
+      "description": "Inspectable pipeline state, including the estimate before user correction.",
+      "properties": {
+        "observation": {
+          "$ref": "#/$defs/Observation"
+        },
+        "raw": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RawSignals"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "raw_status": {
+          "enum": [
+            "fresh",
+            "expired",
+            "missing",
+            "future",
+            "error"
+          ],
+          "title": "Raw Status",
+          "type": "string"
+        },
+        "estimated": {
+          "$ref": "#/$defs/UserStateEstimate"
+        },
+        "correction": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UserCorrection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "correction_status": {
+          "default": "none",
+          "enum": [
+            "none",
+            "active",
+            "expired",
+            "cleared"
+          ],
+          "title": "Correction Status",
+          "type": "string"
+        },
+        "sampling_name": {
+          "title": "Sampling Name",
+          "type": "string"
+        },
+        "estimator_name": {
+          "title": "Estimator Name",
+          "type": "string"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "observation",
+        "raw_status",
+        "estimated",
+        "sampling_name",
+        "estimator_name"
+      ],
+      "title": "ObservationFrame",
+      "type": "object"
+    },
+    "TaskDraft": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Content",
+          "type": "string"
+        },
+        "mode": {
+          "default": "soft",
+          "enum": [
+            "hard",
+            "soft"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "UTC",
+          "title": "Timezone",
+          "type": "string"
+        },
+        "earliest_at": {
+          "format": "date-time",
+          "title": "Earliest At",
+          "type": "string"
+        },
+        "latest_first_delivery_at": {
+          "format": "date-time",
+          "title": "Latest First Delivery At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "earliest_at",
+        "latest_first_delivery_at"
+      ],
+      "title": "TaskDraft",
+      "type": "object"
+    },
+    "TaskView": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "draft": {
+          "$ref": "#/$defs/TaskDraft"
+        },
+        "status": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "registered",
+            "completed",
+            "cancelled"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "occurrence": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Occurrence",
+          "type": "integer"
+        },
+        "confirmed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confirmed At"
+        },
+        "displayed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Displayed At"
+        }
+      },
+      "required": [
+        "task_id",
+        "version",
+        "draft"
+      ],
+      "title": "TaskView",
+      "type": "object"
+    },
+    "TaskCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "command_id": {
+          "title": "Command Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "create",
+            "confirm",
+            "edit",
+            "snooze",
+            "cancel",
+            "complete"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        },
+        "expected_version": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "payload": {
+          "title": "Payload",
+          "type": "object"
+        }
+      },
+      "required": [
+        "command_id",
+        "kind",
+        "task_id"
+      ],
+      "title": "TaskCommand",
+      "type": "object"
+    },
+    "ErrorCode": {
+      "enum": [
+        "STALE_TASK",
+        "STALE_CONTEXT",
+        "STALE_SURFACE",
+        "EXPIRED_REQUEST",
+        "CANCELLED",
+        "OUTSIDE_WINDOW",
+        "DUPLICATE",
+        "INVALID_TRANSITION",
+        "INVALID_ARGUMENT",
+        "NOT_FOUND",
+        "UNKNOWN_TOOL",
+        "TIMEOUT",
+        "FAILED",
+        "BUDGET_EXCEEDED",
+        "UNSUPPORTED"
+      ],
+      "title": "ErrorCode",
+      "type": "string"
+    },
+    "CommandResult": {
+      "additionalProperties": false,
+      "properties": {
+        "command_id": {
+          "title": "Command Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "applied",
+            "rejected",
+            "duplicate"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "actual_version": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Version"
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErrorCode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "view": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TaskView"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message": {
+          "default": "",
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_id",
+        "status"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    },
+    "DecisionEnvelope": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        },
+        "task_version": {
+          "minimum": 1,
+          "title": "Task Version",
+          "type": "integer"
+        },
+        "context_revision": {
+          "minimum": 1,
+          "title": "Context Revision",
+          "type": "integer"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "request_id",
+        "task_id",
+        "task_version",
+        "context_revision",
+        "created_at",
+        "expires_at"
+      ],
+      "title": "DecisionEnvelope",
+      "type": "object"
+    },
+    "ToolCall": {
+      "additionalProperties": false,
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "tool_name": {
+          "title": "Tool Name",
+          "type": "string"
+        },
+        "args": {
+          "title": "Args",
+          "type": "object"
+        },
+        "envelope": {
+          "$ref": "#/$defs/DecisionEnvelope"
+        },
+        "idempotency_key": {
+          "title": "Idempotency Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "call_id",
+        "tool_name",
+        "envelope",
+        "idempotency_key"
+      ],
+      "title": "ToolCall",
+      "type": "object"
+    },
+    "ProposedPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "envelope": {
+          "$ref": "#/$defs/DecisionEnvelope"
+        },
+        "calls": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ToolCall"
+          },
+          "title": "Calls",
+          "type": "array"
+        }
+      },
+      "required": [
+        "envelope"
+      ],
+      "title": "ProposedPlan",
+      "type": "object"
+    },
+    "ToolResult": {
+      "additionalProperties": false,
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "succeeded",
+            "pending",
+            "rejected",
+            "failed",
+            "timeout",
+            "duplicate"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErrorCode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "receipt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Receipt Id"
+        },
+        "state_version": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State Version"
+        },
+        "evidence": {
+          "title": "Evidence",
+          "type": "object"
+        }
+      },
+      "required": [
+        "call_id",
+        "status"
+      ],
+      "title": "ToolResult",
+      "type": "object"
+    },
+    "DisplayCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "delivery_id": {
+          "title": "Delivery Id",
+          "type": "string"
+        },
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        },
+        "task_version": {
+          "title": "Task Version",
+          "type": "integer"
+        },
+        "occurrence": {
+          "title": "Occurrence",
+          "type": "integer"
+        },
+        "content": {
+          "title": "Content",
+          "type": "string"
+        },
+        "requested_at": {
+          "format": "date-time",
+          "title": "Requested At",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "hard_due",
+            "opportunity",
+            "deadline_fallback",
+            "tool",
+            "retry"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "delivery_id",
+        "task_id",
+        "task_version",
+        "occurrence",
+        "content",
+        "requested_at",
+        "expires_at",
+        "reason"
+      ],
+      "title": "DisplayCommand",
+      "type": "object"
+    },
+    "DisplayReceipt": {
+      "additionalProperties": false,
+      "properties": {
+        "delivery_id": {
+          "title": "Delivery Id",
+          "type": "string"
+        },
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        },
+        "task_version": {
+          "title": "Task Version",
+          "type": "integer"
+        },
+        "rendered_at": {
+          "format": "date-time",
+          "title": "Rendered At",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "displayed",
+            "failed",
+            "rejected"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "simulated",
+            "native",
+            "offscreen"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErrorCode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "delivery_id",
+        "task_id",
+        "task_version",
+        "rendered_at",
+        "outcome",
+        "source"
+      ],
+      "title": "DisplayReceipt",
+      "type": "object"
+    },
+    "UiComponent": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "title": "Component Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "card",
+            "text_input",
+            "select",
+            "button",
+            "list"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "label": {
+          "default": "",
+          "title": "Label",
+          "type": "string"
+        },
+        "action_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Action Id"
+        },
+        "options": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "data_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data Key"
+        }
+      },
+      "required": [
+        "component_id",
+        "type"
+      ],
+      "title": "UiComponent",
+      "type": "object"
+    },
+    "UiSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "enum": [
+            1
+          ],
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "surface_id": {
+          "title": "Surface Id",
+          "type": "string"
+        },
+        "surface_revision": {
+          "minimum": 1,
+          "title": "Surface Revision",
+          "type": "integer"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "task_version": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Version"
+        },
+        "components": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/UiComponent"
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "data": {
+          "title": "Data",
+          "type": "object"
+        }
+      },
+      "required": [
+        "surface_id",
+        "surface_revision"
+      ],
+      "title": "UiSpec",
+      "type": "object"
+    },
+    "UiAction": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "action_id": {
+          "enum": [
+            "reminder.create",
+            "reminder.confirm",
+            "reminder.done",
+            "reminder.snooze",
+            "reminder.edit",
+            "reminder.cancel",
+            "state.override",
+            "session.start",
+            "session.pause",
+            "session.resume",
+            "session.end",
+            "state.clear_override"
+          ],
+          "title": "Action Id",
+          "type": "string"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "expected_task_version": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Task Version"
+        },
+        "surface_revision": {
+          "minimum": 1,
+          "title": "Surface Revision",
+          "type": "integer"
+        },
+        "payload": {
+          "title": "Payload",
+          "type": "object"
+        }
+      },
+      "required": [
+        "event_id",
+        "action_id",
+        "surface_revision"
+      ],
+      "title": "UiAction",
+      "type": "object"
+    },
+    "WorkSession": {
+      "additionalProperties": false,
+      "properties": {
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "goal": {
+          "title": "Goal",
+          "type": "string"
+        },
+        "state": {
+          "default": "focusing",
+          "enum": [
+            "focusing",
+            "paused",
+            "break_due",
+            "ended"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "remaining_s": {
+          "minimum": 0.0,
+          "title": "Remaining S",
+          "type": "number"
+        },
+        "phase_due_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Phase Due At"
+        },
+        "confirmed_outcomes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Confirmed Outcomes",
+          "type": "array"
+        },
+        "next_steps": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Next Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "session_id",
+        "version",
+        "goal",
+        "remaining_s"
+      ],
+      "title": "WorkSession",
+      "type": "object"
+    },
+    "SessionCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "command_id": {
+          "title": "Command Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "start",
+            "pause",
+            "resume",
+            "end"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "expected_version": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "payload": {
+          "title": "Payload",
+          "type": "object"
+        }
+      },
+      "required": [
+        "command_id",
+        "kind",
+        "session_id"
+      ],
+      "title": "SessionCommand",
+      "type": "object"
+    },
+    "SessionResult": {
+      "additionalProperties": false,
+      "properties": {
+        "command_id": {
+          "title": "Command Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "applied",
+            "rejected",
+            "duplicate"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "view": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorkSession"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErrorCode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "command_id",
+        "status"
+      ],
+      "title": "SessionResult",
+      "type": "object"
+    },
+    "TraceEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "enum": [
+            1
+          ],
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seq": {
+          "minimum": 1,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "monotonic_s": {
+          "title": "Monotonic S",
+          "type": "number"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "scenario_id": {
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "simulated": {
+          "title": "Simulated",
+          "type": "boolean"
+        },
+        "clock": {
+          "enum": [
+            "virtual",
+            "wall"
+          ],
+          "title": "Clock",
+          "type": "string"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "task_version": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Version"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Id"
+        },
+        "call_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Call Id"
+        },
+        "delivery_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delivery Id"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Session Id"
+        },
+        "payload": {
+          "title": "Payload",
+          "type": "object"
+        }
+      },
+      "required": [
+        "seq",
+        "ts",
+        "monotonic_s",
+        "run_id",
+        "scenario_id",
+        "kind",
+        "source",
+        "simulated",
+        "clock"
+      ],
+      "title": "TraceEvent",
+      "type": "object"
+    },
+    "ScenarioEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "minimum": 1,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "at_s": {
+          "minimum": 0.0,
+          "title": "At S",
+          "type": "number"
+        },
+        "kind": {
+          "enum": [
+            "command",
+            "observation",
+            "advance",
+            "receipt",
+            "session",
+            "tool",
+            "fault",
+            "decision",
+            "raw_sample",
+            "correction",
+            "clear_correction"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "payload": {
+          "title": "Payload",
+          "type": "object"
+        }
+      },
+      "required": [
+        "seq",
+        "at_s",
+        "kind"
+      ],
+      "title": "ScenarioEvent",
+      "type": "object"
+    },
+    "Scenario": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "enum": [
+            1
+          ],
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "scenario_id": {
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "initial_time": {
+          "format": "date-time",
+          "title": "Initial Time",
+          "type": "string"
+        },
+        "events": {
+          "items": {
+            "$ref": "#/$defs/ScenarioEvent"
+          },
+          "title": "Events",
+          "type": "array"
+        },
+        "expected_outcomes": {
+          "title": "Expected Outcomes",
+          "type": "object"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "initial_time",
+        "events"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    },
+    "RecoveryFixture": {
+      "additionalProperties": false,
+      "description": "Portable recovery boundary for B; not an SQL schema or M0 restore implementation.",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "enum": [
+            1
+          ],
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "captured_at": {
+          "format": "date-time",
+          "title": "Captured At",
+          "type": "string"
+        },
+        "tasks": {
+          "items": {
+            "$ref": "#/$defs/TaskView"
+          },
+          "title": "Tasks",
+          "type": "array"
+        },
+        "pending_deliveries": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/DisplayCommand"
+          },
+          "title": "Pending Deliveries",
+          "type": "array"
+        },
+        "job_examples": {
+          "default": [],
+          "items": {
+            "type": "object"
+          },
+          "title": "Job Examples",
+          "type": "array"
+        },
+        "expected_after_restart": {
+          "title": "Expected After Restart",
+          "type": "object"
+        }
+      },
+      "required": [
+        "captured_at",
+        "tasks",
+        "expected_after_restart"
+      ],
+      "title": "RecoveryFixture",
+      "type": "object"
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/$defs/RawSignals"
+    },
+    {
+      "$ref": "#/$defs/StateEvidence"
+    },
+    {
+      "$ref": "#/$defs/UserCorrection"
+    },
+    {
+      "$ref": "#/$defs/UserStateEstimate"
+    },
+    {
+      "$ref": "#/$defs/Observation"
+    },
+    {
+      "$ref": "#/$defs/ObservationFrame"
+    },
+    {
+      "$ref": "#/$defs/TaskDraft"
+    },
+    {
+      "$ref": "#/$defs/TaskView"
+    },
+    {
+      "$ref": "#/$defs/TaskCommand"
+    },
+    {
+      "$ref": "#/$defs/CommandResult"
+    },
+    {
+      "$ref": "#/$defs/DecisionEnvelope"
+    },
+    {
+      "$ref": "#/$defs/ToolCall"
+    },
+    {
+      "$ref": "#/$defs/ProposedPlan"
+    },
+    {
+      "$ref": "#/$defs/ToolResult"
+    },
+    {
+      "$ref": "#/$defs/DisplayCommand"
+    },
+    {
+      "$ref": "#/$defs/DisplayReceipt"
+    },
+    {
+      "$ref": "#/$defs/UiComponent"
+    },
+    {
+      "$ref": "#/$defs/UiSpec"
+    },
+    {
+      "$ref": "#/$defs/UiAction"
+    },
+    {
+      "$ref": "#/$defs/WorkSession"
+    },
+    {
+      "$ref": "#/$defs/SessionCommand"
+    },
+    {
+      "$ref": "#/$defs/SessionResult"
+    },
+    {
+      "$ref": "#/$defs/TraceEvent"
+    },
+    {
+      "$ref": "#/$defs/ScenarioEvent"
+    },
+    {
+      "$ref": "#/$defs/Scenario"
+    },
+    {
+      "$ref": "#/$defs/RecoveryFixture"
+    }
+  ]
+}

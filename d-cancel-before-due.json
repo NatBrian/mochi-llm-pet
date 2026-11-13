@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "scenario_id": "d-cancel-before-due",
+  "description": "Synthetic D acceptance case: cancellation before the deadline prevents delivery.",
+  "initial_time": "2026-01-01T17:00:00Z",
+  "events": [
+    {
+      "seq": 1,
+      "at_s": 0,
+      "kind": "command",
+      "payload": {
+        "command_id": "d-create-water",
+        "kind": "create",
+        "task_id": "water",
+        "expected_version": 0,
+        "payload": {
+          "draft": {
+            "content": "Drink water",
+            "mode": "hard",
+            "timezone": "UTC",
+            "earliest_at": "2026-01-01T17:00:10Z",
+            "latest_first_delivery_at": "2026-01-01T17:00:10Z"
+          }
+        }
+      }
+    },
+    {
+      "seq": 2,
+      "at_s": 0,
+      "kind": "command",
+      "payload": {
+        "command_id": "d-confirm-water",
+        "kind": "confirm",
+        "task_id": "water",
+        "expected_version": 1,
+        "payload": {}
+      }
+    },
+    {
+      "seq": 3,
+      "at_s": 8,
+      "kind": "command",
+      "payload": {
+        "command_id": "d-cancel-water",
+        "kind": "cancel",
+        "task_id": "water",
+        "expected_version": 2,
+        "payload": {}
+      }
+    },
+    {
+      "seq": 4,
+      "at_s": 10,
+      "kind": "advance",
+      "payload": {}
+    }
+  ],
+  "expected_outcomes": {
+    "tasks": {
+      "water": {
+        "status": "cancelled",
+        "version": 3,
+        "displayed": false
+      }
+    },
+    "delivery_requests": 0,
+    "displays": 0,
+    "errors": [],
+    "events": {
+      "task.cancelled": 1,
+      "delivery.requested": 0,
+      "delivery.displayed": 0
+    }
+  }
+}

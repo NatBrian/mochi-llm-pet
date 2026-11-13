@@ -6,15 +6,18 @@ Run from the repository root:
 
 import json
 import sys
+from collections import Counter
 from hashlib import sha256
 from pathlib import Path
 
 from d_count_deliveries import count_deliveries
+from d_run_evidence import check_run_manifest
 
 
 COUNT_FIELDS = (
     "request_events", "unique_deliveries", "retry_events",
     "displayed_deliveries", "timeout_events", "without_display_receipt",
+    "failed_events",
 )
 
 
@@ -59,8 +62,40 @@ def summarize_suite(suite_path):
 
             metrics = count_deliveries(trace_path)
             row["metrics"] = metrics
+            row["evidence_errors"].extend(metrics["evidence_errors"])
             row["trace_sha256"] = sha256(text.encode("utf-8")).hexdigest()
             row["trace_event_count"] = len(events)
+            if any(not isinstance(event["kind"], str) or not event["kind"]
+                   for event in events):
+                raise ValueError("Trace event kinds must be nonempty strings")
+            actual_event_counts = dict(Counter(event["kind"] for event in events))
+            row["trace_event_counts"] = actual_event_counts
+
+            reported_metrics = case["metrics"]
+            if not isinstance(reported_metrics, dict):
+                raise ValueError("Report metrics must be an object")
+            reported_total = reported_metrics["total_events"]
+            reported_counts = reported_metrics["event_counts"]
+            if type(reported_total) is not int or reported_total < 0:
+                raise ValueError("Report total_events must be a nonnegative integer")
+            if (not isinstance(reported_counts, dict)
+                    or any(not isinstance(kind, str) or not kind
+                           or type(count) is not int or count < 0
+                           for kind, count in reported_counts.items())):
+                raise ValueError("Report event_counts must map event names to nonnegative integers")
+
+            if len(events) != reported_total:
+                row["evidence_errors"].append(
+                    f"TOTAL_EVENTS_MISMATCH: expected {reported_total}, got {len(events)}"
+                )
+            for kind in sorted(set(actual_event_counts) | set(reported_counts)):
+                actual_count = actual_event_counts.get(kind, 0)
+                expected_count = reported_counts.get(kind, 0)
+                if actual_count != expected_count:
+                    row["evidence_errors"].append(
+                        f"EVENT_COUNT_MISMATCH {kind}: expected {expected_count}, got {actual_count}"
+                    )
+
             for metric_name, outcome_name in (
                 ("unique_deliveries", "delivery_requests"),
                 ("displayed_deliveries", "displays"),
@@ -79,7 +114,8 @@ def summarize_suite(suite_path):
                 totals[name] += row["metrics"][name]
         rows.append(row)
 
-    valid = (suite.get("status") == "passed"
+    run_provenance = check_run_manifest(suite_path, seen)
+    valid = (run_provenance["status"] != "failed" and suite.get("status") == "passed"
              and all(row["case_status"] == "passed" and not row["case_failures"]
                      and not row["evidence_errors"] for row in rows))
     scripts_path = Path(__file__).resolve().parent
@@ -90,6 +126,7 @@ def summarize_suite(suite_path):
     return {
         "status": "passed" if valid else "failed",
         "evidence_type": "synthetic_replay",
+        "run_provenance": run_provenance,
         "scenario_count": len(rows),
         "passed_cases": sum(row["case_status"] == "passed" for row in rows),
         "failed_cases": sum(row["case_status"] != "passed" for row in rows),
@@ -114,7 +151,7 @@ def main():
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({key: summary[key] for key in (
         "status", "scenario_count", "passed_cases", "failed_cases",
-        "metrics_case_count", "evidence_gap_cases", "trace_count_totals",
+        "metrics_case_count", "evidence_gap_cases", "trace_count_totals", "run_provenance",
     )}, indent=2))
     print("Saved:", summary_path)
     if summary["status"] != "passed":
